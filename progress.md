@@ -1,0 +1,45 @@
+﻿Original prompt: le projet et une page moteur de recherche avec au premier charactere taper une animation d'eau qui monte force l'utilisateur a vite trouver le site cible (site de plomberie que nous aurons cree) le mot taper vas etre modifier table ascii , il devront trouver le bon codage pour trouver la page dans la recherche . dans la page plomberie il devrat trouver l'outil . cree dans le projet une page avec un coté le moteur de recherche et de l'autre coté un personnage dans une salle de bain avec le niveau de l'eau qui monte
+
+- Replaced index.html with a split layout:
+  - Left: search engine challenge with ASCII +1 transformation and live code preview.
+  - Right: bathroom character scene with animated rising water.
+- Flood starts on first typed character and rises over 40 seconds.
+- Added pressure bar and countdown timer.
+- Access condition: transformed query must equal "plomberie".
+- Added plomberie.html as target page.
+- Added mini mission in plomberie.html to find hidden tool in one compartment.
+
+TODO / Suggestions:
+- Optional: add audio alarm when water > 80%.
+- Optional: make secret tool location deterministic per session ID.
+- Optional: add restart button without page refresh.
+- Verification auto: tentative du client Playwright echouee (package 'playwright' manquant).
+- combat.html updated: uses local arene4.png and original Pokemon sprites (Pikachu, Salameche, Carapuce, Canarticho -> Psychokwak).
+- combat.html redesigned: team selection screen, full-screen arena flow, Pokeball intro text 'Je te choisi', Attack/Object commands, and floating red/green HP deltas on arena.
+- combat turn system tightened: strict player/enemy phase lock, comic-style impact animation on target sprite, and floating HP loss text over target moving +10px for 2s.
+- Added special attacks in combat: dedicated Special button, per-Pokemon special move names and power, 2 special charges tracked in HUD, and special turn resolution integrated with strict turn order.
+- Combat tuned per request: sprites enlarged by 50%, arena assets preloaded before battle view, legendary item button appears only below 30% player HP, Psychokwak HP set to 2x selected Pokemon HP, and HP cards positioned with player left / Psychokwak right.
+- Legendary item now guarantees one-hit KO; added cinematic shooter character and bullet-hole overlay impacts on screen during legendary activation.
+- Switched combat assets to local files: arena background now battle_duck.jpg, shooter now uses arme.png with automatic fallback to arme.jpg if arme.png is missing.
+- Bullet impacts now use local image impact.jpg (CSS texture + preload).
+- Switched bullet impact asset from impact.jpg to impact2.avif (render + preload).
+- Switched bullet impact asset from impact2.avif to impact3.png (render + preload).
+- Added victory finale animation: two giant impact marks at 30% screen size and a large center YOU WIN banner with pop animation on win.
+- Added victory soundtrack playback without image: hidden media player supports direct audio links and YouTube links via ?win_music=...; starts on win finale and stops on restart/return.
+- Fixed win audio reliability: added autoplay-unlock + retry on user interaction, plus fallback victory jingle when no valid link can be played.
+- Set default victory media link to https://youtu.be/Hoc_uF-cF0Q.
+- Renamed enemy duck label from Psychokwak to Psykokwak across combat UI and battle text.
+- Enforced win condition: regular and special attacks can no longer defeat the boss (enemy HP floored at 1); only legendary item path can trigger victory. Selection remains exactly 3 Pokemon.
+- Combat pacing slowed (reduced normal/special/enemy damage); objects now open as a list panel (Potion + Legendary conditionally in-list); defeat now proposes retry with a dedicated restart button; legendary cinematic now uses image/joueurArmee.png; updated local asset paths to image/ directory.
+- Moved legendary shooter position to lower-left and added per-Pokemon attack VFX for all 4 battlers (electric/fire/water/psy).
+- Updated all local media references to image/ paths and switched legendary shooter art to image/joueurArmee.png.
+- Converted Objet into an item list panel (Potion + conditional Legendary) and kept retry flow on defeat.
+- Verified Attack_animations doc URL now redirects users to new Essentials Engine wiki; implementation uses equivalent per-attack visual layering in this web battle scene.
+- Reworked Pokemon summon: larger falling Pokeball at spawn point + expanding white sphere reveal.
+- Removed giant end impacts; now impacts are small, enemy-clustered, sequential, total 30 with FIFO cap of 10 visible at once.
+- Positioned legendary shooter at lower-left and kept image/joueurArmee.png on legendary use.
+- Added crescent blade projectile system: 4 sequential moon-blades per attack, travelling attacker->target with type-based colors (Electrik yellow, Eau blue, Herbe green, Psy white), integrated for player and enemy attack flows.
+- Restructured image assets: created image/combat and image/sitePlomberie. Moved combat media into image/combat and updated combat.html paths accordingly.
+- Boosted moon-blade projectile visibility: size increased to 72px and stronger glow/contrast. Intensified attack colors (electrik yellow, water blue, grass green, psy white).
+- Added battle intro BGM autoplay from image/combat/stereo_color-battle-drum-493709.mp3, with autoplay retry on next user interaction and proper stop on battle end/return.
+- Added dedicated legendary SFX hook: plays image/combat/SFB-ak47_3.mp3 when legendary animation starts and force-stops at animation end (also reset on battle end/restart/return).
