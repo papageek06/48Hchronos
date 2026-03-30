@@ -12,6 +12,8 @@
       --accent: #0b78d1;
       --shadow: 0 20px 60px rgba(2, 65, 102, 0.16);
       --danger: #d93f3f;
+      --water: rgba(30, 144, 255, 0.22);
+      --water-deep: rgba(0, 90, 200, 0.28);
     }
 
     * {
@@ -23,23 +25,54 @@
     body {
       min-height: 100vh;
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: radial-gradient(circle at top, #c6e8ff 0%, #eef8ff 30%, #dceefd 100%);
       color: var(--text);
       display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 40px;
+      align-items: stretch;
+      justify-content: stretch;
+      padding: 0;
+      background: var(--bg);
+    }
+
+    #water {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      display: block;
+      pointer-events: none;
+      z-index: 1;
     }
 
     .page {
-      width: min(100%, 920px);
+      width: 100%;
+      max-width: none;
+      min-height: 100vh;
       text-align: center;
-      background: linear-gradient(180deg, rgba(255,255,255,0.96), rgba(245,252,255,0.96));
-      border-radius: 32px;
-      box-shadow: var(--shadow);
-      padding: 60px 36px 48px;
+      background: linear-gradient(
+        180deg,
+        rgba(255, 255, 255, 0.72),
+        rgba(245, 252, 255, 0.62)
+      );
+      backdrop-filter: blur(8px) saturate(1.05);
+      -webkit-backdrop-filter: blur(8px) saturate(1.05);
+      padding: clamp(28px, 6vh, 72px) clamp(18px, 5vw, 64px);
       position: relative;
       overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    .content {
+      position: relative;
+      z-index: 2;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
     }
 
     .logo {
@@ -65,7 +98,8 @@
       justify-content: center;
       gap: 12px;
       margin: 0 auto 24px;
-      max-width: 720px;
+      width: min(100%, 980px);
+      max-width: none;
     }
 
     .search-card input {
@@ -101,19 +135,6 @@
       filter: brightness(1.05);
     }
 
-    .hint {
-      display: inline-block;
-      background: rgba(11, 120, 209, 0.1);
-      color: #114c72;
-      border: 1px solid rgba(11, 120, 209, 0.18);
-      padding: 14px 20px;
-      border-radius: 24px;
-      font-size: 0.98rem;
-      line-height: 1.5;
-      max-width: 720px;
-      margin: 0 auto;
-    }
-
     .hidden {
       display: none;
     }
@@ -133,19 +154,6 @@
 
     .result p {
       line-height: 1.7;
-    }
-
-    .link-button {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      margin-top: 18px;
-      padding: 14px 22px;
-      color: white;
-      background: #0b78d1;
-      border-radius: 999px;
-      text-decoration: none;
-      font-weight: 600;
     }
 
     .footer {
@@ -181,37 +189,120 @@
 </head>
 <body>
   <div class="page">
+    <canvas id="water" aria-hidden="true"></canvas>
     <div class="wave"></div>
     <div class="wave two"></div>
-    <div class="logo">Aqua<span>Go</span></div>
-    <div class="subtitle">Entrez une piste et trouvez la sortie du labyrinthe aquatique.</div>
+    <div class="content">
+      <div class="logo">Aqua<span>Go</span></div>
+      <div class="subtitle">Recherchez un mot-clé.</div>
 
-    <div class="search-card">
-      <input id="searchInput" type="text" placeholder="Rechercher... ex: source, vague, rivière" autocomplete="off" />
-      <button id="searchButton">Chercher</button>
-    </div>
+      <div class="search-card">
+        <input id="searchInput" type="text" placeholder="Rechercher... ex: source, vague, rivière" autocomplete="off" />
+        <button id="searchButton">Chercher</button>
+      </div>
 
-    <div class="hint">Indice : il faut penser à l’eau qui coule vers la sortie. Tape un mot en rapport avec la source ou la mer.</div>
+      <div id="message" class="result hidden"></div>
 
-    <div id="message" class="result hidden"></div>
-
-    <div class="footer">
-      AquaGo est un moteur fictif d’évasion. Commencez par une recherche et suivez les indices pour trouver la sortie.
+      <div class="footer">
+        AquaGo — page de recherche.
+      </div>
     </div>
   </div>
 
   <script>
+    (() => {
+      const DURATION_MS = 60_000;
+
+      const canvas = document.getElementById('water');
+      const ctx = canvas.getContext('2d', { alpha: true });
+      if (!ctx) return;
+
+      const DPR = () => Math.max(1, Math.min(2, window.devicePixelRatio || 1));
+
+      let w = 0;
+      let h = 0;
+      let dpr = DPR();
+      let start = performance.now();
+
+      const resize = () => {
+        dpr = DPR();
+        w = Math.floor(window.innerWidth);
+        h = Math.floor(window.innerHeight);
+        canvas.width = Math.floor(w * dpr);
+        canvas.height = Math.floor(h * dpr);
+        canvas.style.width = w + 'px';
+        canvas.style.height = h + 'px';
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      };
+
+      window.addEventListener('resize', resize, { passive: true });
+      resize();
+
+      const cssVar = (name, fallback) => {
+        const value = getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+        return value || fallback;
+      };
+
+      const draw = (now) => {
+        const elapsed = now - start;
+        const t = Math.min(1, elapsed / DURATION_MS);
+
+        ctx.clearRect(0, 0, w, h);
+
+        const waterY = h * (1 - t);
+
+        const time = elapsed / 1000;
+        const baseAmp = Math.max(6, Math.min(18, h * 0.02));
+        const amp = baseAmp * (0.55 + 0.45 * (1 - Math.pow(1 - t, 2)));
+        const speed = 0.9;
+        const wl1 = Math.max(220, w * 0.35);
+        const wl2 = Math.max(120, w * 0.18);
+
+        const grad = ctx.createLinearGradient(0, waterY, 0, h);
+        grad.addColorStop(0, cssVar('--water', 'rgba(30, 144, 255, 0.22)'));
+        grad.addColorStop(1, cssVar('--water-deep', 'rgba(0, 90, 200, 0.28)'));
+
+        ctx.fillStyle = grad;
+        ctx.beginPath();
+        ctx.moveTo(0, h);
+        ctx.lineTo(0, waterY);
+
+        const step = Math.max(6, Math.floor(w / 140));
+        for (let x = 0; x <= w + step; x += step) {
+          const y =
+            waterY +
+            Math.sin((x / wl1) * Math.PI * 2 + time * speed) * amp +
+            Math.sin((x / wl2) * Math.PI * 2 - time * speed * 1.3) * (amp * 0.45) +
+            Math.sin((x / (wl2 * 0.62)) * Math.PI * 2 + time * speed * 1.9) * (amp * 0.18);
+          ctx.lineTo(x, y);
+        }
+
+        ctx.lineTo(w, h);
+        ctx.closePath();
+        ctx.fill();
+
+        ctx.strokeStyle = 'rgba(0, 120, 255, 0.18)';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        for (let x = 0; x <= w + step; x += step) {
+          const y =
+            waterY +
+            Math.sin((x / wl1) * Math.PI * 2 + time * speed) * (amp * 0.8) +
+            Math.sin((x / wl2) * Math.PI * 2 - time * speed * 1.3) * (amp * 0.25);
+          if (x === 0) ctx.moveTo(x, y);
+          else ctx.lineTo(x, y);
+        }
+        ctx.stroke();
+
+        requestAnimationFrame(draw);
+      };
+
+      requestAnimationFrame(draw);
+    })();
+
     const searchButton = document.getElementById('searchButton');
     const searchInput = document.getElementById('searchInput');
     const messageBox = document.getElementById('message');
-
-    const answers = {
-      eau: 'L’eau est partout dans ce jeu. Continue, la sortie est cachée dans un mot plus précis.',
-      source: 'Bravo ! Tu trouves la source. Tu es proche de la sortie. Cherche le passage vers la mer.',
-      mer: 'Super ! La mer est la sortie du labyrinthe. Clique sur le lien pour t’échapper.',
-      rivière: 'La rivière te guide. La prochaine étape est de suivre le courant jusqu’à la mer.',
-      courant: 'Le courant te pousse vers la sortie. Encore un effort, cherche la mer.'
-    };
 
     function showMessage(html, isSuccess = false) {
       messageBox.innerHTML = html;
@@ -222,18 +313,12 @@
     function search() {
       const query = searchInput.value.trim().toLowerCase();
       if (!query) {
-        showMessage('<h2>Rien saisi...</h2><p>Commence par taper un mot lié à l’eau : source, rivière, mer, vague.</p>');
+        showMessage('<h2>Rien saisi</h2><p>Entrez un mot-clé pour lancer la recherche.</p>');
         return;
       }
 
-      if (answers[query]) {
-        const response = answers[query];
-        const success = query === 'mer';
-        const buttonHtml = success ? '<a class="link-button" href="#" onclick="alert(\'Sortie trouvée ! Tu as échappé au labyrinthe aquatique.\');return false;">Sortie</a>' : '';
-        showMessage('<h2>Résultat</h2><p>' + response + '</p>' + buttonHtml, success);
-      } else {
-        showMessage('<h2>Aucune réponse</h2><p>Ce mot ne correspond pas à l’indice. Essaie un autre terme lié à l’eau.</p>');
-      }
+      const pretty = query.replaceAll('<', '&lt;').replaceAll('>', '&gt;');
+      showMessage('<h2>Résultat</h2><p>Recherche effectuée pour : <strong>' + pretty + '</strong></p>', true);
     }
 
     searchButton.addEventListener('click', search);

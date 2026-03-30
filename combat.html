@@ -1,0 +1,1404 @@
+﻿<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Combat Pokemon - Arena</title>
+<style>
+:root{
+  --ink:#1e2a3a;
+  --paper:#ffffffee;
+  --accent:#ff5f1f;
+  --accent-dark:#d74a16;
+  --ok:#24a35b;
+  --bad:#d63f3f;
+  --hud:#101b2ad8;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+  font-family:"Trebuchet MS","Segoe UI",sans-serif;
+  color:var(--ink);
+  background:linear-gradient(160deg,#ffecc8,#ffd9a8);
+  min-height:100vh;
+}
+.hidden{display:none !important}
+
+/* Selection screen */
+.select-screen{
+  max-width:1100px;
+  margin:24px auto;
+  background:var(--paper);
+  border:1px solid #0002;
+  border-radius:24px;
+  box-shadow:0 16px 40px #0003;
+  overflow:hidden;
+}
+.select-head{
+  background:linear-gradient(120deg,#1d3046,#2f4f71);
+  color:#fff;
+  padding:16px 20px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:10px;
+  flex-wrap:wrap;
+}
+.select-head h1{
+  font-family:Impact,Haettenschweiler,"Arial Black",sans-serif;
+  font-size:clamp(1.2rem,3vw,1.8rem);
+  letter-spacing:.03em;
+  text-transform:uppercase;
+}
+.select-note{
+  padding:12px 20px;
+  background:#fff8e8;
+  border-bottom:1px solid #0002;
+  font-size:.95rem;
+}
+.team-grid{
+  padding:20px;
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:14px;
+}
+.poke-card{
+  background:#fff;
+  border:1px solid #0002;
+  border-radius:16px;
+  padding:14px;
+  display:grid;
+  gap:10px;
+  justify-items:center;
+  text-align:center;
+}
+.poke-card img{
+  width:144px;
+  height:144px;
+  image-rendering:pixelated;
+  filter:drop-shadow(0 8px 8px #0004);
+}
+.poke-card h2{font-size:1.1rem}
+.poke-card p{font-size:.9rem;color:#4a6178}
+.pick-btn{
+  border:0;
+  border-radius:12px;
+  background:var(--accent);
+  color:#fff;
+  font-weight:800;
+  padding:10px 14px;
+  width:100%;
+  cursor:pointer;
+}
+.pick-btn:hover{background:var(--accent-dark)}
+
+/* Battle full screen */
+.battle-screen{
+  position:fixed;
+  inset:0;
+  z-index:20;
+  display:grid;
+  grid-template-rows:1fr auto;
+  background:#081221;
+}
+.arena-wrap{
+  position:relative;
+  overflow:hidden;
+  background:
+    linear-gradient(180deg,#00000025,#00000055),
+    url("image/combat/battle_duck.jpg") center/cover no-repeat;
+}
+.top-hud{
+  position:absolute;
+  top:16px;
+  left:16px;
+  right:16px;
+  display:flex;
+  justify-content:space-between;
+  gap:14px;
+  pointer-events:none;
+}
+.hp-card{
+  width:min(340px,45vw);
+  background:var(--hud);
+  color:#e8f1ff;
+  border:1px solid #ffffff2e;
+  border-radius:14px;
+  padding:10px 12px;
+  display:grid;
+  gap:7px;
+}
+.hp-row{
+  display:flex;
+  justify-content:space-between;
+  font-size:.95rem;
+  font-weight:800;
+}
+.hp-track{
+  height:12px;
+  border-radius:999px;
+  overflow:hidden;
+  background:#ffffff25;
+}
+.hp-fill{
+  height:100%;
+  width:100%;
+  background:linear-gradient(90deg,#30b667,#e8d64f,#d63f3f);
+  transition:width .25s ease;
+}
+.status{
+  font-size:.82rem;
+  opacity:.9;
+}
+
+.enemy-zone,.player-zone{
+  position:absolute;
+  width:360px;
+  height:300px;
+}
+.enemy-zone{right:10%;top:24%}
+.player-zone{left:8%;bottom:12%}
+.battle-sprite{
+  position:absolute;
+  left:50%;
+  top:50%;
+  --sprite-scale:1;
+  transform:translate(-50%,-50%) scale(var(--sprite-scale));
+  image-rendering:pixelated;
+  filter:drop-shadow(0 10px 8px #0007);
+  opacity:1;
+  transition:opacity .25s ease;
+}
+.enemy-sprite{width:285px;height:285px}
+.player-sprite{width:330px;height:330px}
+.battle-sprite.hit-comic{animation:comicHit .34s ease}
+
+.impact-burst{
+  position:absolute;
+  left:50%;
+  top:42%;
+  transform:translate(-50%,-50%);
+  font-family:Impact,Haettenschweiler,"Arial Black",sans-serif;
+  font-size:1.25rem;
+  letter-spacing:.05em;
+  color:#fff9a8;
+  text-shadow:0 2px 8px #000,0 0 16px #ff5f1f;
+  z-index:11;
+  pointer-events:none;
+  animation:comicBurst .45s ease forwards;
+}
+
+.bullet-layer{
+  position:absolute;
+  inset:0;
+  z-index:16;
+  pointer-events:none;
+}
+.bullet-hole{
+  position:absolute;
+  width:42px;
+  height:42px;
+  border-radius:50%;
+  background:url("image/combat/impact3.png") center/cover no-repeat;
+  filter:drop-shadow(0 2px 3px #000a);
+  animation:bulletPop .24s ease-out both;
+}
+
+.shooter{
+  position:absolute;
+  left:2%;
+  bottom:8%;
+  width:220px;
+  height:250px;
+  z-index:17;
+  pointer-events:none;
+  opacity:0;
+  transform:translateX(-46px);
+}
+.shooter.show{animation:shooterEnter .35s ease forwards}
+.shooter-img{
+  width:100%;
+  height:100%;
+  object-fit:contain;
+  filter:drop-shadow(0 8px 10px #000a);
+}
+.shooter.fire .shooter-img{
+  filter:drop-shadow(0 8px 10px #000a) brightness(1.25) saturate(1.25);
+}
+.attack-fx-layer{
+  position:absolute;
+  inset:0;
+  z-index:13;
+  pointer-events:none;
+}
+.moon-blade{
+  position:absolute;
+  width:72px;
+  height:72px;
+  border-radius:50%;
+  background:var(--blade-color,#f8f8ff);
+  border:3px solid #ffffffd4;
+  box-shadow:
+    0 0 14px var(--blade-color,#f8f8ff),
+    0 0 30px var(--blade-color,#f8f8ff);
+  filter:drop-shadow(0 0 18px var(--blade-color,#f8f8ff)) saturate(1.35);
+  pointer-events:none;
+  transform:translate(-50%,-50%);
+  animation:moonFly .62s cubic-bezier(.2,.7,.2,1) forwards;
+}
+.moon-blade::after{
+  content:"";
+  position:absolute;
+  left:24px;
+  top:8px;
+  width:44px;
+  height:52px;
+  border-radius:50%;
+  background:#081221;
+}
+.fx{
+  position:absolute;
+  left:50%;
+  top:50%;
+  transform:translate(-50%,-50%);
+  pointer-events:none;
+}
+.fx-electric{
+  width:180px;
+  height:22px;
+  background:linear-gradient(90deg,#fff8a3,#ffe23e,#fff8a3);
+  clip-path:polygon(0 50%,14% 0,24% 44%,40% 6%,50% 48%,62% 12%,72% 56%,88% 20%,100% 60%,100% 100%,0 100%);
+  filter:drop-shadow(0 0 12px #ffe23e);
+  animation:fxElectric .42s ease-out forwards;
+}
+.fx-fire{
+  width:148px;
+  height:148px;
+  border-radius:50%;
+  background:radial-gradient(circle,#fff8ad 0 16%,#ffb048 17% 44%,#ff5a22 45% 72%,transparent 73%);
+  filter:drop-shadow(0 0 12px #ff6f2e);
+  animation:fxFire .48s ease-out forwards;
+}
+.fx-water{
+  width:168px;
+  height:102px;
+  border-radius:42% 58% 46% 54% / 52% 46% 54% 48%;
+  background:linear-gradient(180deg,#d8f6ff,#6dc9ff 55%,#2f88d4);
+  opacity:.86;
+  filter:drop-shadow(0 0 10px #67c6ff);
+  animation:fxWater .5s ease-out forwards;
+}
+.fx-herbe{
+  width:162px;
+  height:92px;
+  border-radius:44% 56% 48% 52%;
+  background:linear-gradient(180deg,#d9ffd9,#7be889 58%,#2aa84d);
+  opacity:.88;
+  filter:drop-shadow(0 0 10px #58d06c);
+  animation:fxGrass .5s ease-out forwards;
+}
+.fx-psy{
+  width:158px;
+  height:158px;
+  border-radius:50%;
+  border:8px solid #d6a5ff;
+  box-shadow:0 0 0 8px #b065ff44,inset 0 0 18px #c177ff;
+  animation:fxPsy .56s ease-out forwards;
+}
+
+.pokeball{
+  position:absolute;
+  width:86px;
+  height:86px;
+  border-radius:50%;
+  border:4px solid #202833;
+  background:linear-gradient(180deg,#ef4f4f 0 50%,#f7f7f7 50%);
+  opacity:0;
+  z-index:14;
+  transform:translate(-50%,-50%);
+}
+.pokeball::before{content:"";position:absolute;left:0;right:0;top:40px;height:4px;background:#202833}
+.pokeball::after{content:"";position:absolute;left:33px;top:32px;width:14px;height:14px;border-radius:50%;background:#fff;border:4px solid #202833}
+.pokeball.drop{opacity:1;animation:dropBall .85s cubic-bezier(.2,.9,.2,1.1) forwards}
+.summon-flash{
+  position:absolute;
+  width:24px;
+  height:24px;
+  border-radius:50%;
+  background:radial-gradient(circle,#ffffff 0 38%,#ffffffd0 52%,#ffffff00 78%);
+  opacity:0;
+  z-index:13;
+  transform:translate(-50%,-50%) scale(.2);
+}
+.summon-flash.burst{animation:summonBurst .56s ease-out forwards}
+
+.result-text{
+  position:absolute;
+  left:50%;
+  top:8%;
+  transform:translateX(-50%);
+  min-width:min(88vw,560px);
+  text-align:center;
+  background:#0f1f34d2;
+  color:#eaf4ff;
+  border:1px solid #ffffff30;
+  border-radius:12px;
+  padding:10px 14px;
+  font-weight:800;
+  z-index:8;
+}
+.win-banner{
+  position:absolute;
+  left:50%;
+  top:50%;
+  transform:translate(-50%,-50%) scale(.55);
+  font-family:Impact,Haettenschweiler,"Arial Black",sans-serif;
+  font-size:clamp(4rem,12vw,10rem);
+  letter-spacing:.06em;
+  color:#fff8b0;
+  text-shadow:0 4px 0 #8c3b17,0 10px 26px #000d,0 0 42px #ff5f1f;
+  z-index:19;
+  opacity:0;
+  pointer-events:none;
+}
+.win-banner.show{animation:winPop 1s ease forwards}
+
+.hidden-media{
+  position:absolute;
+  width:0;
+  height:0;
+  overflow:hidden;
+  opacity:0;
+  pointer-events:none;
+}
+
+.float-delta{
+  position:absolute;
+  font-weight:900;
+  font-size:1.5rem;
+  text-shadow:0 2px 8px #000c;
+  z-index:9;
+  pointer-events:none;
+  animation:floatUp 2s linear forwards;
+}
+.float-delta.bad{color:#ff5a5a}
+.float-delta.good{color:#67f29c}
+
+.command-bar{
+  background:#0b1624;
+  border-top:1px solid #ffffff2a;
+  color:#dfeeff;
+  padding:12px;
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr)) 1fr;
+  gap:10px;
+  align-items:stretch;
+}
+.item-panel{
+  grid-column:1 / -1;
+  border:1px solid #ffffff24;
+  border-radius:10px;
+  padding:10px;
+  background:#0f2137;
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:8px;
+}
+.item-btn{
+  border:1px solid #ffffff30;
+  border-radius:9px;
+  background:#1a334f;
+  color:#fff;
+  font-weight:800;
+  min-height:44px;
+  cursor:pointer;
+}
+.item-btn:hover{background:#24486f}
+.item-btn:disabled{opacity:.55;cursor:not-allowed}
+.cmd-btn{
+  border:1px solid #ffffff35;
+  border-radius:10px;
+  background:#14273f;
+  color:#fff;
+  font-weight:800;
+  cursor:pointer;
+  min-height:52px;
+}
+.cmd-btn:hover{background:#1b3758}
+.cmd-btn:disabled{opacity:.55;cursor:not-allowed}
+.cmd-meta{
+  border:1px solid #ffffff20;
+  border-radius:10px;
+  padding:10px;
+  font-size:.9rem;
+  display:grid;
+  gap:5px;
+}
+.back-btn{
+  position:absolute;
+  top:16px;
+  right:16px;
+  z-index:12;
+  border:1px solid #ffffff44;
+  border-radius:999px;
+  padding:8px 12px;
+  background:#0f2137d0;
+  color:#fff;
+  font-weight:800;
+  cursor:pointer;
+}
+
+@keyframes dropBall{
+  0%{opacity:0;transform:translate(-50%,-320%) scale(.88)}
+  35%{opacity:1}
+  80%{transform:translate(-50%,-50%) scale(1)}
+  90%{transform:translate(-50%,-64%) scale(1.04)}
+  100%{opacity:1;transform:translate(-50%,-50%) scale(1)}
+}
+@keyframes shooterEnter{
+  0%{opacity:0;transform:translateX(-46px)}
+  100%{opacity:1;transform:translateX(0)}
+}
+@keyframes muzzleFlash{
+  0%{opacity:1;transform:scale(.8)}
+  100%{opacity:0;transform:scale(1.6)}
+}
+@keyframes bulletPop{
+  0%{opacity:0;transform:scale(.4)}
+  100%{opacity:1;transform:scale(1)}
+}
+@keyframes fxElectric{
+  0%{opacity:0;transform:translate(-50%,-50%) rotate(-6deg) scale(.4)}
+  35%{opacity:1;transform:translate(-50%,-50%) rotate(4deg) scale(1)}
+  100%{opacity:0;transform:translate(-50%,-50%) rotate(2deg) scale(1.2)}
+}
+@keyframes fxFire{
+  0%{opacity:0;transform:translate(-50%,-50%) scale(.45)}
+  25%{opacity:1;transform:translate(-50%,-50%) scale(1)}
+  100%{opacity:0;transform:translate(-50%,-58%) scale(1.35)}
+}
+@keyframes fxWater{
+  0%{opacity:0;transform:translate(-50%,-50%) scale(.5)}
+  30%{opacity:1;transform:translate(-50%,-50%) scale(1)}
+  100%{opacity:0;transform:translate(-50%,-46%) scale(1.2)}
+}
+@keyframes fxGrass{
+  0%{opacity:0;transform:translate(-50%,-50%) scale(.45)}
+  30%{opacity:1;transform:translate(-50%,-50%) scale(1)}
+  100%{opacity:0;transform:translate(-50%,-44%) scale(1.2)}
+}
+@keyframes fxPsy{
+  0%{opacity:0;transform:translate(-50%,-50%) scale(.2)}
+  38%{opacity:1;transform:translate(-50%,-50%) scale(1)}
+  100%{opacity:0;transform:translate(-50%,-50%) scale(1.45)}
+}
+@keyframes moonFly{
+  0%{
+    opacity:0;
+    transform:translate(-50%,-50%) translate(0,0) rotate(0deg) scale(.48);
+  }
+  10%{opacity:1}
+  100%{
+    opacity:0;
+    transform:translate(-50%,-50%) translate(var(--tx),var(--ty)) rotate(460deg) scale(1.18);
+  }
+}
+@keyframes summonBurst{
+  0%{opacity:0;transform:translate(-50%,-50%) scale(.2)}
+  18%{opacity:1}
+  100%{opacity:0;transform:translate(-50%,-50%) scale(12)}
+}
+@keyframes winPop{
+  0%{opacity:0;transform:translate(-50%,-50%) scale(.55)}
+  55%{opacity:1;transform:translate(-50%,-50%) scale(1.1)}
+  100%{opacity:1;transform:translate(-50%,-50%) scale(1)}
+}
+@keyframes comicHit{
+  0%{transform:translate(-50%,-50%) scale(var(--sprite-scale));filter:drop-shadow(0 10px 8px #0007)}
+  20%{transform:translate(calc(-50% - 7px),calc(-50% + 2px)) scale(calc(var(--sprite-scale) * 1.04));filter:drop-shadow(0 0 0 #fff) brightness(1.6)}
+  40%{transform:translate(calc(-50% + 6px),calc(-50% - 2px)) scale(calc(var(--sprite-scale) * .98))}
+  70%{transform:translate(calc(-50% - 3px),calc(-50% + 1px)) scale(calc(var(--sprite-scale) * 1.02))}
+  100%{transform:translate(-50%,-50%) scale(var(--sprite-scale));filter:drop-shadow(0 10px 8px #0007)}
+}
+@keyframes comicBurst{
+  0%{opacity:0;transform:translate(-50%,-50%) scale(.7)}
+  25%{opacity:1;transform:translate(-50%,-50%) scale(1.1)}
+  100%{opacity:0;transform:translate(-50%,-58%) scale(1.35)}
+}
+@keyframes floatUp{
+  0%{transform:translate(-50%,0);opacity:0}
+  8%{opacity:1}
+  85%{opacity:1}
+  100%{transform:translate(-50%,-10px);opacity:0}
+}
+
+@media(max-width:960px){
+  .team-grid{grid-template-columns:1fr}
+  .enemy-zone{right:4%;top:28%}
+  .player-zone{left:2%;bottom:16%}
+  .hp-card{width:min(280px,46vw)}
+}
+@media(max-width:760px){
+  .command-bar{grid-template-columns:1fr;}
+  .result-text{top:12%;font-size:.95rem}
+  .enemy-zone{width:260px;height:220px;right:0;top:30%}
+  .player-zone{width:260px;height:220px;left:0;bottom:18%}
+  .enemy-sprite{width:225px;height:225px}
+  .player-sprite{width:255px;height:255px}
+}
+</style>
+</head>
+<body>
+
+<main id="selectScreen" class="select-screen">
+  <header class="select-head">
+    <h1>Selection de Pokemon</h1>
+    <div>Etape 1: visualise ton equipe</div>
+  </header>
+  <div class="select-note">Choisis un Pokemon. Ensuite l'arene passe en grand ecran, Pokeball lancee avec le texte "Je te choisi".</div>
+  <section class="team-grid">
+    <article class="poke-card">
+      <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/25.png" alt="Pikachu">
+      <h2>Pikachu</h2>
+      <p>Type Electrik | HP 150</p>
+      <button class="pick-btn" data-pick="pikachu">Je prends Pikachu</button>
+    </article>
+    <article class="poke-card">
+      <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/4.png" alt="Salameche">
+      <h2>Salameche</h2>
+      <p>Type Feu | HP 160</p>
+      <button class="pick-btn" data-pick="charmander">Je prends Salameche</button>
+    </article>
+    <article class="poke-card">
+      <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/7.png" alt="Carapuce">
+      <h2>Carapuce</h2>
+      <p>Type Eau | HP 172</p>
+      <button class="pick-btn" data-pick="squirtle">Je prends Carapuce</button>
+    </article>
+  </section>
+</main>
+
+<section id="battleScreen" class="battle-screen hidden" aria-label="Arena combat">
+  <div id="arenaWrap" class="arena-wrap">
+    <button id="backBtn" class="back-btn" type="button">Retour selection</button>
+
+    <div class="top-hud">
+      <div class="hp-card">
+        <div class="hp-row"><span id="playerName">-</span><span id="playerHpText">HP 0/0</span></div>
+        <div class="hp-track"><div id="playerHpFill" class="hp-fill"></div></div>
+        <div id="playerStatus" class="status">Selection en attente.</div>
+      </div>
+      <div class="hp-card">
+        <div class="hp-row"><span id="enemyName">Psykokwak</span><span id="enemyHpText">HP 0/0</span></div>
+        <div class="hp-track"><div id="enemyHpFill" class="hp-fill"></div></div>
+        <div id="enemyStatus" class="status">Pret a combattre.</div>
+      </div>
+    </div>
+
+    <div id="resultText" class="result-text">Selectionne ton Pokemon pour demarrer.</div>
+    <div id="winBanner" class="win-banner hidden">YOU WIN</div>
+    <audio id="battleBgm" class="hidden-media" preload="auto" loop></audio>
+    <audio id="legendarySfx" class="hidden-media" preload="auto"></audio>
+    <audio id="winAudio" class="hidden-media" preload="none"></audio>
+    <div id="winMediaHost" class="hidden-media"></div>
+
+    <div id="enemyZone" class="enemy-zone">
+      <img id="enemySprite" class="battle-sprite enemy-sprite" src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/54.png" alt="Psykokwak">
+    </div>
+
+    <div id="playerZone" class="player-zone">
+      <img id="playerSprite" class="battle-sprite player-sprite" src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/back/25.png" alt="Pokemon joueur">
+    </div>
+
+    <div id="attackFxLayer" class="attack-fx-layer"></div>
+    <div id="bulletLayer" class="bullet-layer"></div>
+    <div id="shooter" class="shooter hidden" aria-hidden="true">
+      <img id="shooterImg" class="shooter-img" src="image/combat/arme.jpg" alt="Personnage arme">
+    </div>
+
+    <div id="summonFlash" class="summon-flash"></div>
+    <div id="pokeball" class="pokeball"></div>
+  </div>
+
+  <div class="command-bar">
+    <button id="attackBtn" class="cmd-btn" type="button" disabled>Attaque</button>
+    <button id="specialBtn" class="cmd-btn" type="button" disabled>Attaque speciale</button>
+    <button id="itemBtn" class="cmd-btn" type="button" disabled>Objet</button>
+    <button id="restartBtn" class="cmd-btn hidden" type="button">Recommencer combat</button>
+    <div id="itemPanel" class="item-panel hidden">
+      <button id="itemPotionBtn" class="item-btn" type="button">Potion</button>
+      <button id="itemLegendaryBtn" class="item-btn hidden" type="button">Objet legendaire</button>
+    </div>
+    <div id="metaPanel" class="cmd-meta">
+      <div id="turnInfo">Tour: -</div>
+      <div id="potionInfo">Potions: 2</div>
+      <div id="specialInfo">Special: -</div>
+      <div id="legendaryInfo">Legendaire: verrouille</div>
+      <div id="hintInfo">Action: Attaque / Special / Objet (+Legendaire < 30% PV, KO 1 coup)</div>
+    </div>
+  </div>
+</section>
+
+<script>
+const roster={
+  pikachu:{name:"Pikachu",type:"Electrik",maxHp:150,minAtk:8,maxAtk:15,back:"https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/back/25.png",moves:["Eclair","Vive-Attaque"],special:{name:"Fatal-Foudre",minAtk:16,maxAtk:24}},
+  charmander:{name:"Salameche",type:"Feu",maxHp:160,minAtk:9,maxAtk:16,back:"https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/back/4.png",moves:["Flammeche","Griffe"],special:{name:"Lance-Flammes X",minAtk:17,maxAtk:25}},
+  squirtle:{name:"Carapuce",type:"Eau",maxHp:172,minAtk:7,maxAtk:14,back:"https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/back/7.png",moves:["Pistolet a O","Charge"],special:{name:"Hydrocanon",minAtk:15,maxAtk:22}}
+};
+const enemyTemplate={name:"Psykokwak",type:"Psy",minAtk:8,maxAtk:14,sprite:"https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/54.png",moves:["Confusion","Choc Mental"]};
+
+const selectScreen=document.getElementById("selectScreen");
+const battleScreen=document.getElementById("battleScreen");
+const backBtn=document.getElementById("backBtn");
+const resultText=document.getElementById("resultText");
+const winBanner=document.getElementById("winBanner");
+const battleBgm=document.getElementById("battleBgm");
+const legendarySfx=document.getElementById("legendarySfx");
+const winAudio=document.getElementById("winAudio");
+const winMediaHost=document.getElementById("winMediaHost");
+const enemySprite=document.getElementById("enemySprite");
+const playerSprite=document.getElementById("playerSprite");
+const enemyZone=document.getElementById("enemyZone");
+const playerZone=document.getElementById("playerZone");
+const attackFxLayer=document.getElementById("attackFxLayer");
+const bulletLayer=document.getElementById("bulletLayer");
+const shooter=document.getElementById("shooter");
+const shooterImg=document.getElementById("shooterImg");
+const summonFlash=document.getElementById("summonFlash");
+const pokeball=document.getElementById("pokeball");
+
+const enemyName=document.getElementById("enemyName");
+const enemyHpText=document.getElementById("enemyHpText");
+const enemyHpFill=document.getElementById("enemyHpFill");
+const enemyStatus=document.getElementById("enemyStatus");
+
+const playerName=document.getElementById("playerName");
+const playerHpText=document.getElementById("playerHpText");
+const playerHpFill=document.getElementById("playerHpFill");
+const playerStatus=document.getElementById("playerStatus");
+
+const attackBtn=document.getElementById("attackBtn");
+const specialBtn=document.getElementById("specialBtn");
+const itemBtn=document.getElementById("itemBtn");
+const restartBtn=document.getElementById("restartBtn");
+const itemPanel=document.getElementById("itemPanel");
+const itemPotionBtn=document.getElementById("itemPotionBtn");
+const itemLegendaryBtn=document.getElementById("itemLegendaryBtn");
+const turnInfo=document.getElementById("turnInfo");
+const potionInfo=document.getElementById("potionInfo");
+const specialInfo=document.getElementById("specialInfo");
+const legendaryInfo=document.getElementById("legendaryInfo");
+const hintInfo=document.getElementById("hintInfo");
+
+const arenaWrap=document.getElementById("arenaWrap");
+
+const state={
+  player:null,
+  selectedKey:"",
+  enemy:null,
+  playerHp:0,
+  enemyHp:0,
+  potions:2,
+  specialCharges:2,
+  legendaryUsed:false,
+  itemMenuOpen:false,
+  turn:0,
+  busy:false,
+  over:false,
+  phase:"intro"
+};
+
+const wait=(ms)=>new Promise((resolve)=>setTimeout(resolve,ms));
+const rand=(min,max)=>Math.floor(Math.random()*(max-min+1))+min;
+const BATTLE_MUSIC_URL="image/combat/stereo_color-battle-drum-493709.mp3";
+const LEGENDARY_SFX_URL="image/combat/SFB-ak47_3.mp3";
+const WIN_AUDIO_FALLBACK_URL="https://youtu.be/Hoc_uF-cF0Q";
+const queryMusic=(new URLSearchParams(window.location.search).get("win_music") || "").trim();
+const WIN_AUDIO_URL=queryMusic || WIN_AUDIO_FALLBACK_URL;
+const AudioContextCtor=window.AudioContext || window.webkitAudioContext;
+let audioCtx=null;
+let pendingWinMediaRetry=false;
+let pendingBattleMusicRetry=false;
+let pendingLegendarySfxRetry=false;
+const activeImpactHoles=[];
+
+function preloadAsset(src){
+  return new Promise((resolve)=>{
+    const img=new Image();
+    img.onload=()=>resolve({src,ok:true});
+    img.onerror=()=>resolve({src,ok:false});
+    img.src=src;
+  });
+}
+
+async function resolveShooterAsset(){
+  const png=await preloadAsset("image/combat/arme.png");
+  if(png.ok) return "image/combat/arme.png";
+  const jpg=await preloadAsset("image/combat/arme.jpg");
+  if(jpg.ok) return "image/combat/arme.jpg";
+  return "image/combat/arme.jpg";
+}
+
+const shooterAssetReady=resolveShooterAsset();
+const legendaryShooterAssetReady=preloadAsset("image/combat/joueurArmee.png");
+
+const battleAssetsReady=Promise.all([
+  preloadAsset("image/combat/battle_duck.jpg"),
+  preloadAsset("image/combat/impact3.png"),
+  preloadAsset(enemyTemplate.sprite),
+  ...Object.values(roster).map((pokemon)=>preloadAsset(pokemon.back)),
+  shooterAssetReady,
+  legendaryShooterAssetReady
+]);
+
+function setBattleVisibility(show){
+  if(show){
+    selectScreen.classList.add("hidden");
+    battleScreen.classList.remove("hidden");
+    document.body.style.overflow="hidden";
+  }else{
+    battleScreen.classList.add("hidden");
+    selectScreen.classList.remove("hidden");
+    document.body.style.overflow="auto";
+  }
+}
+
+function extractYouTubeId(url){
+  try{
+    const parsed=new URL(url);
+    if(parsed.hostname.includes("youtu.be")){
+      return parsed.pathname.replace("/","").trim();
+    }
+    if(parsed.hostname.includes("youtube.com")){
+      const id=parsed.searchParams.get("v");
+      if(id) return id.trim();
+      const parts=parsed.pathname.split("/");
+      const embedIndex=parts.findIndex((part)=>part==="embed");
+      if(embedIndex>=0 && parts[embedIndex+1]) return parts[embedIndex+1].trim();
+    }
+  }catch(_){}
+  return "";
+}
+
+function stopWinMedia(){
+  winAudio.pause();
+  winAudio.removeAttribute("src");
+  winAudio.load();
+  winMediaHost.innerHTML="";
+  pendingWinMediaRetry=false;
+}
+
+function stopBattleMusic(){
+  battleBgm.pause();
+  pendingBattleMusicRetry=false;
+}
+
+function startBattleMusic(){
+  battleBgm.src=BATTLE_MUSIC_URL;
+  battleBgm.volume=0.45;
+  battleBgm.currentTime=0;
+  battleBgm.play().catch(()=>{
+    pendingBattleMusicRetry=true;
+  });
+}
+
+function stopLegendarySfx(){
+  legendarySfx.pause();
+  try{ legendarySfx.currentTime=0; }catch(_){}
+  pendingLegendarySfxRetry=false;
+}
+
+function startLegendarySfx(){
+  legendarySfx.src=LEGENDARY_SFX_URL;
+  legendarySfx.volume=0.85;
+  legendarySfx.currentTime=0;
+  legendarySfx.play().catch(()=>{
+    pendingLegendarySfxRetry=true;
+  });
+}
+
+function getAudioContext(){
+  if(!AudioContextCtor) return null;
+  if(!audioCtx) audioCtx=new AudioContextCtor();
+  return audioCtx;
+}
+
+async function unlockAudioContext(){
+  const ctx=getAudioContext();
+  if(!ctx) return;
+  if(ctx.state==="suspended"){
+    try{ await ctx.resume(); }catch(_){}
+  }
+}
+
+function playFallbackWinJingle(){
+  const ctx=getAudioContext();
+  if(!ctx) return;
+  const notes=[523.25,659.25,783.99,1046.5];
+  let t=ctx.currentTime;
+  notes.forEach((freq)=>{
+    const osc=ctx.createOscillator();
+    const gain=ctx.createGain();
+    osc.type="triangle";
+    osc.frequency.value=freq;
+    gain.gain.setValueAtTime(0.0001,t);
+    gain.gain.exponentialRampToValueAtTime(0.18,t+0.03);
+    gain.gain.exponentialRampToValueAtTime(0.0001,t+0.18);
+    osc.connect(gain).connect(ctx.destination);
+    osc.start(t);
+    osc.stop(t+0.2);
+    t+=0.16;
+  });
+}
+
+function playWinMedia(){
+  unlockAudioContext();
+  if(!WIN_AUDIO_URL){
+    playFallbackWinJingle();
+    return;
+  }
+  stopWinMedia();
+  const ytId=extractYouTubeId(WIN_AUDIO_URL);
+  if(ytId){
+    const iframe=document.createElement("iframe");
+    iframe.src=`https://www.youtube.com/embed/${ytId}?autoplay=1&controls=0&rel=0`;
+    iframe.allow="autoplay";
+    iframe.width="0";
+    iframe.height="0";
+    iframe.style.border="0";
+    winMediaHost.appendChild(iframe);
+    return;
+  }
+  winAudio.src=WIN_AUDIO_URL;
+  winAudio.play().catch(()=>{
+    pendingWinMediaRetry=true;
+    playFallbackWinJingle();
+  });
+}
+
+function setControls(enabled){
+  const canAct=enabled && !state.busy && !state.over && state.phase==="player";
+  attackBtn.disabled=!canAct;
+  specialBtn.disabled=(!canAct) || state.specialCharges<=0;
+  itemBtn.disabled=!canAct;
+  itemPotionBtn.disabled=!canAct || state.potions<=0;
+  updateLegendaryVisibility(canAct);
+  if(!canAct){
+    state.itemMenuOpen=false;
+    itemPanel.classList.add("hidden");
+  }
+}
+
+function isLegendaryUnlocked(){
+  if(!state.player || state.player.maxHp<=0) return false;
+  return (state.playerHp/state.player.maxHp)<0.3 && !state.legendaryUsed;
+}
+
+function updateLegendaryVisibility(canAct){
+  const show=isLegendaryUnlocked();
+  itemLegendaryBtn.classList.toggle("hidden",!show);
+  itemLegendaryBtn.disabled=!(show && canAct);
+  legendaryInfo.textContent=show?"Legendaire: disponible (KO instantane)":"Legendaire: verrouille";
+}
+
+function setPhase(phase){
+  state.phase=phase;
+  if(state.over){
+    hintInfo.textContent="Combat termine.";
+  }else if(phase==="player"){
+    hintInfo.textContent="Ton tour: Attaque, Special, Objet ou Legendaire si debloque.";
+  }else if(phase==="enemy"){
+    hintInfo.textContent="Tour ennemi en cours...";
+  }else{
+    hintInfo.textContent="Preparation du combat...";
+  }
+  setControls(true);
+}
+
+function setResult(message){
+  resultText.textContent=message;
+}
+
+function refreshHud(){
+  if(!state.player || !state.enemy) return;
+  enemyName.textContent=state.enemy.name;
+  playerName.textContent=state.player.name;
+  enemyHpText.textContent=`HP ${Math.max(0,state.enemyHp)}/${state.enemy.maxHp}`;
+  playerHpText.textContent=`HP ${Math.max(0,state.playerHp)}/${state.player.maxHp}`;
+  enemyHpFill.style.width=`${Math.max(0,Math.min(100,(state.enemyHp/state.enemy.maxHp)*100))}%`;
+  playerHpFill.style.width=`${Math.max(0,Math.min(100,(state.playerHp/state.player.maxHp)*100))}%`;
+  const phaseLabel=state.phase==="enemy"?"Ennemi":(state.phase==="player"?"Joueur":"Intro");
+  turnInfo.textContent=`Tour: ${state.turn} (${phaseLabel})`;
+  potionInfo.textContent=`Potions: ${state.potions}`;
+  specialInfo.textContent=`Special: ${state.player.special.name} (${state.specialCharges})`;
+  updateLegendaryVisibility(state.phase==="player" && !state.busy && !state.over);
+}
+
+function spawnDelta(targetEl,value,isHeal){
+  const targetRect=targetEl.getBoundingClientRect();
+  const arenaRect=arenaWrap.getBoundingClientRect();
+  const delta=document.createElement("div");
+  delta.className=`float-delta ${isHeal?"good":"bad"}`;
+  delta.textContent=isHeal?`+${value}`:`-${value}`;
+  delta.style.left=`${targetRect.left-arenaRect.left + targetRect.width*0.5}px`;
+  delta.style.top=`${targetRect.top-arenaRect.top - 10}px`;
+  arenaWrap.appendChild(delta);
+  setTimeout(()=>delta.remove(),2050);
+}
+
+function animateImpact(spriteEl,zoneEl,label){
+  spriteEl.classList.remove("hit-comic");
+  void spriteEl.offsetWidth;
+  spriteEl.classList.add("hit-comic");
+
+  const burst=document.createElement("div");
+  burst.className="impact-burst";
+  burst.textContent=label;
+  zoneEl.appendChild(burst);
+  setTimeout(()=>burst.remove(),460);
+}
+
+function getAttackFxClass(attackerType){
+  const type=(attackerType || "").toLowerCase();
+  if(type.includes("elect")) return "fx-electric";
+  if(type.includes("eau")) return "fx-water";
+  if(type.includes("herbe")) return "fx-herbe";
+  if(type.includes("psy")) return "fx-psy";
+  return "fx-fire";
+}
+
+function getBladeColor(attackerType){
+  const type=(attackerType || "").toLowerCase();
+  if(type.includes("elect")) return "#ffe100";
+  if(type.includes("eau")) return "#00a6ff";
+  if(type.includes("herbe")) return "#20d650";
+  if(type.includes("psy")) return "#ffffff";
+  return "#ff8d36";
+}
+
+function spawnMoonBladeProjectile(startX,startY,endX,endY,color,index){
+  const blade=document.createElement("div");
+  blade.className="moon-blade";
+  blade.style.left=`${startX}px`;
+  blade.style.top=`${startY}px`;
+  blade.style.setProperty("--blade-color",color);
+
+  const dx=endX-startX;
+  const dy=endY-startY;
+  const wobble=(index%2===0?1:-1)*rand(6,14);
+  blade.style.setProperty("--tx",`${dx + wobble}px`);
+  blade.style.setProperty("--ty",`${dy - wobble}px`);
+
+  attackFxLayer.appendChild(blade);
+  setTimeout(()=>blade.remove(),700);
+}
+
+function playAttackAnimation(attackerType,attackerEl,targetEl,isSpecial=false){
+  const attackerRect=attackerEl.getBoundingClientRect();
+  const targetRect=targetEl.getBoundingClientRect();
+  const arenaRect=attackFxLayer.getBoundingClientRect();
+  const startX=attackerRect.left-arenaRect.left + attackerRect.width*0.5;
+  const startY=attackerRect.top-arenaRect.top + attackerRect.height*0.42;
+  const endX=targetRect.left-arenaRect.left + targetRect.width*0.5;
+  const endY=targetRect.top-arenaRect.top + targetRect.height*0.45;
+  const bladeColor=getBladeColor(attackerType);
+
+  for(let i=0;i<4;i++){
+    setTimeout(()=>{
+      spawnMoonBladeProjectile(startX,startY,endX,endY,bladeColor,i);
+    },i*95);
+  }
+
+  const fx=document.createElement("div");
+  fx.className=`fx ${getAttackFxClass(attackerType)}`;
+  fx.style.left=`${endX}px`;
+  fx.style.top=`${endY}px`;
+  if(isSpecial){
+    fx.style.filter=(fx.style.filter || "") + " brightness(1.25)";
+    fx.style.transform="translate(-50%,-50%) scale(1.2)";
+  }
+  attackFxLayer.appendChild(fx);
+  setTimeout(()=>fx.remove(),620);
+}
+
+function clearBulletHoles(){
+  attackFxLayer.innerHTML="";
+  bulletLayer.innerHTML="";
+  activeImpactHoles.length=0;
+  winBanner.classList.add("hidden");
+  winBanner.classList.remove("show");
+}
+
+async function playWinFinale(){
+  playWinMedia();
+  await wait(180);
+  winBanner.classList.remove("hidden");
+  winBanner.classList.remove("show");
+  void winBanner.offsetWidth;
+  winBanner.classList.add("show");
+}
+
+function createBulletHoleAroundEnemy(){
+  const targetRect=enemyZone.getBoundingClientRect();
+  const layerRect=bulletLayer.getBoundingClientRect();
+  const centerX=targetRect.left-layerRect.left + targetRect.width*0.5;
+  const centerY=targetRect.top-layerRect.top + targetRect.height*0.36;
+  const angle=Math.random()*Math.PI*2;
+  const radius=rand(18,96);
+  const x=centerX + Math.cos(angle)*radius*0.85;
+  const y=centerY + Math.sin(angle)*radius*0.55 - rand(10,66);
+
+  const hole=document.createElement("div");
+  hole.className="bullet-hole";
+  hole.style.left=`${x}px`;
+  hole.style.top=`${y}px`;
+  hole.style.transform=`translate(-50%,-50%) rotate(${rand(-35,35)}deg)`;
+  bulletLayer.appendChild(hole);
+  activeImpactHoles.push(hole);
+  if(activeImpactHoles.length>10){
+    const oldHole=activeImpactHoles.shift();
+    if(oldHole && oldHole.parentNode) oldHole.remove();
+  }
+}
+
+function setShooterVisible(show){
+  if(show){
+    shooter.classList.remove("hidden");
+    shooter.classList.remove("show");
+    void shooter.offsetWidth;
+    shooter.classList.add("show");
+  }else{
+    shooter.classList.remove("show","fire");
+    shooter.classList.add("hidden");
+  }
+}
+
+async function playLegendaryCinematic(){
+  setShooterVisible(true);
+  setResult("Objet legendaire active: mode sulfateuse.");
+  startLegendarySfx();
+  await wait(180);
+  for(let i=0;i<30;i++){
+    shooter.classList.add("fire");
+    animateImpact(enemySprite,enemyZone,"RATATATA!");
+    createBulletHoleAroundEnemy();
+    await wait(68);
+    shooter.classList.remove("fire");
+    await wait(54);
+  }
+  await wait(180);
+  stopLegendarySfx();
+  setShooterVisible(false);
+}
+
+function endBattle(playerWon){
+  state.over=true;
+  state.itemMenuOpen=false;
+  itemPanel.classList.add("hidden");
+  setPhase("over");
+  setControls(false);
+  restartBtn.classList.toggle("hidden",playerWon);
+  stopBattleMusic();
+  stopLegendarySfx();
+  if(playerWon){
+    setResult(`Victoire ! ${state.enemy.name} est KO.`);
+    enemyStatus.textContent="KO";
+    playerStatus.textContent="Tu gagnes le combat.";
+    void playWinFinale();
+  }else{
+    setResult(`${state.player.name} est KO... Defaite. Clique sur "Recommencer combat" pour retenter.`);
+    playerStatus.textContent="KO";
+    enemyStatus.textContent="Psykokwak triomphe.";
+  }
+}
+
+async function enemyTurn(){
+  if(state.over) return;
+  setPhase("enemy");
+  state.busy=true;
+  setControls(false);
+  await wait(420);
+
+  const dmg=rand(state.enemy.minAtk,state.enemy.maxAtk);
+  state.playerHp=Math.max(0,state.playerHp-dmg);
+  const move=state.enemy.moves[rand(0,state.enemy.moves.length-1)];
+  playAttackAnimation(state.enemy.type,enemyZone,playerZone,false);
+  animateImpact(playerSprite,playerZone,"BAM!");
+  spawnDelta(playerZone,dmg,false);
+  setResult(`${state.enemy.name} utilise ${move} !`);
+  playerStatus.textContent=`Tu perds ${dmg} PV.`;
+  enemyStatus.textContent="Offensive reussie.";
+  refreshHud();
+
+  if(state.playerHp<=0){
+    endBattle(false);
+    return;
+  }
+
+  await wait(520);
+  state.busy=false;
+  setPhase("player");
+  playerStatus.textContent="A toi de jouer.";
+  enemyStatus.textContent="En attente de ta commande.";
+  refreshHud();
+}
+
+async function onAttack(){
+  if(state.busy||state.over||state.phase!=="player") return;
+  state.busy=true;
+  setControls(false);
+  state.turn+=1;
+  refreshHud();
+
+  const dmg=rand(state.player.minAtk,state.player.maxAtk);
+  const nextEnemyHp=state.enemyHp-dmg;
+  state.enemyHp=Math.max(1,nextEnemyHp);
+  const move=state.player.moves[rand(0,state.player.moves.length-1)];
+  playAttackAnimation(state.player.type,playerZone,enemyZone,false);
+  animateImpact(enemySprite,enemyZone,"POW!");
+  spawnDelta(enemyZone,dmg,false);
+  setResult(`${state.player.name} utilise ${move} !`);
+  enemyStatus.textContent=nextEnemyHp<=0
+    ? `${state.enemy.name} tient encore debout. Seul l'objet legendaire peut finir le combat.`
+    : `${state.enemy.name} perd ${dmg} PV.`;
+  playerStatus.textContent="Belle attaque.";
+  refreshHud();
+
+  setPhase("enemy");
+  await wait(620);
+  state.busy=false;
+  await enemyTurn();
+}
+
+async function onSpecial(){
+  if(state.busy||state.over||state.phase!=="player") return;
+  if(state.specialCharges<=0){
+    setResult("Plus de charge speciale disponible.");
+    playerStatus.textContent="Special indisponible.";
+    return;
+  }
+
+  state.busy=true;
+  setControls(false);
+  state.turn+=1;
+  state.specialCharges-=1;
+  refreshHud();
+
+  const dmg=rand(state.player.special.minAtk,state.player.special.maxAtk);
+  const nextEnemyHp=state.enemyHp-dmg;
+  state.enemyHp=Math.max(1,nextEnemyHp);
+  playAttackAnimation(state.player.type,playerZone,enemyZone,true);
+  animateImpact(enemySprite,enemyZone,"KRAK!");
+  spawnDelta(enemyZone,dmg,false);
+  setResult(`${state.player.name} declenche ${state.player.special.name} !`);
+  enemyStatus.textContent=nextEnemyHp<=0
+    ? `${state.enemy.name} refuse de tomber. Active l'objet legendaire.`
+    : `${state.enemy.name} subit ${dmg} PV de degats.`;  
+  playerStatus.textContent="Attaque speciale reussie.";
+  refreshHud();
+
+  setPhase("enemy");
+  await wait(700);
+  state.busy=false;
+  await enemyTurn();
+}
+
+async function onLegendary(){
+  if(state.busy||state.over||state.phase!=="player") return;
+  if(!isLegendaryUnlocked()){
+    setResult("Objet legendaire indisponible.");
+    playerStatus.textContent="Condition: passer sous 30% PV.";
+    return;
+  }
+
+  state.turn+=1;
+  state.busy=true;
+  state.legendaryUsed=true;
+  state.itemMenuOpen=false;
+  itemPanel.classList.add("hidden");
+  setControls(false);
+  refreshHud();
+
+  shooterImg.src="image/combat/joueurArmee.png";
+  const dmg=state.enemyHp;
+  await playLegendaryCinematic();
+  state.enemyHp=0;
+  spawnDelta(enemyZone,dmg,false);
+  setResult(`${state.player.name} active l'objet legendaire: KO en 1 coup !`);
+  playerStatus.textContent="Execution legendaire reussie.";
+  enemyStatus.textContent=`Psykokwak prend ${dmg} PV et tombe KO.`;
+  refreshHud();
+
+  endBattle(true);
+}
+
+function onItem(){
+  if(state.busy||state.over||state.phase!=="player") return;
+  state.itemMenuOpen=!state.itemMenuOpen;
+  itemPanel.classList.toggle("hidden",!state.itemMenuOpen);
+  setResult(state.itemMenuOpen
+    ? "Objets disponibles: choisis Potion ou Objet legendaire si debloque."
+    : "Menu objet ferme.");
+}
+
+async function onUsePotion(){
+  if(state.busy||state.over||state.phase!=="player") return;
+  if(state.potions<=0){
+    setResult("Plus de potion disponible.");
+    playerStatus.textContent="Objet impossible.";
+    return;
+  }
+
+  state.turn+=1;
+  state.busy=true;
+  state.itemMenuOpen=false;
+  itemPanel.classList.add("hidden");
+  setControls(false);
+  refreshHud();
+
+  state.potions-=1;
+  const heal=rand(26,36);
+  state.playerHp=Math.min(state.player.maxHp,state.playerHp+heal);
+  spawnDelta(playerZone,heal,true);
+  setResult(`${state.player.name} utilise une potion.`);
+  playerStatus.textContent=`Soin de ${heal} PV.`;
+  enemyStatus.textContent="Psykokwak observe...";
+  refreshHud();
+
+  setPhase("enemy");
+  await wait(620);
+  state.busy=false;
+  await enemyTurn();
+}
+
+async function startBattle(key){
+  const shooterSrc=await shooterAssetReady;
+  shooterImg.src=shooterSrc;
+  await battleAssetsReady;
+  stopWinMedia();
+  stopBattleMusic();
+  stopLegendarySfx();
+  clearBulletHoles();
+  setShooterVisible(false);
+  restartBtn.classList.add("hidden");
+  itemPanel.classList.add("hidden");
+  state.itemMenuOpen=false;
+  state.selectedKey=key;
+  state.player=JSON.parse(JSON.stringify(roster[key]));
+  state.enemy=JSON.parse(JSON.stringify(enemyTemplate));
+  state.enemy.maxHp=state.player.maxHp*2;
+  state.playerHp=state.player.maxHp;
+  state.enemyHp=state.enemy.maxHp;
+  state.potions=2;
+  state.specialCharges=2;
+  state.legendaryUsed=false;
+  state.turn=1;
+  state.busy=true;
+  state.over=false;
+  state.phase="intro";
+
+  playerSprite.src=state.player.back;
+  playerSprite.alt=state.player.name;
+  enemySprite.src=state.enemy.sprite;
+  enemySprite.alt=state.enemy.name;
+
+  setBattleVisibility(true);
+  startBattleMusic();
+  refreshHud();
+  setControls(false);
+  setPhase("intro");
+
+  setResult(`Je te choisi ${state.player.name} !`);
+  playerStatus.textContent="Lancement Pokeball...";
+  enemyStatus.textContent="Un ennemi apparait.";
+
+  const zoneRect=playerZone.getBoundingClientRect();
+  const arenaRect=arenaWrap.getBoundingClientRect();
+  const spawnX=zoneRect.left-arenaRect.left + zoneRect.width*0.5;
+  const spawnY=zoneRect.top-arenaRect.top + zoneRect.height*0.58;
+  pokeball.style.left=`${spawnX}px`;
+  pokeball.style.top=`${spawnY}px`;
+  summonFlash.style.left=`${spawnX}px`;
+  summonFlash.style.top=`${spawnY}px`;
+
+  playerSprite.style.opacity="0";
+  enemySprite.style.opacity="0";
+  pokeball.style.opacity="";
+  pokeball.classList.remove("drop");
+  summonFlash.classList.remove("burst");
+  void pokeball.offsetWidth;
+  pokeball.classList.add("drop");
+
+  await wait(860);
+  pokeball.classList.remove("drop");
+  pokeball.style.opacity="0";
+  void summonFlash.offsetWidth;
+  summonFlash.classList.add("burst");
+  await wait(260);
+  playerSprite.style.opacity="1";
+  enemySprite.style.opacity="1";
+
+  await wait(360);
+  summonFlash.classList.remove("burst");
+  setResult(`Combat lance: ${state.player.name} vs ${state.enemy.name}`);
+  playerStatus.textContent="Pret pour Attaque / Objet.";
+  enemyStatus.textContent="Psykokwak est pret.";
+
+  state.busy=false;
+  setPhase("player");
+  refreshHud();
+}
+
+function backToSelection(){
+  state.busy=false;
+  state.over=false;
+  state.phase="intro";
+  state.legendaryUsed=false;
+  state.itemMenuOpen=false;
+  itemPanel.classList.add("hidden");
+  restartBtn.classList.add("hidden");
+  clearBulletHoles();
+  setShooterVisible(false);
+  stopWinMedia();
+  stopBattleMusic();
+  stopLegendarySfx();
+  setBattleVisibility(false);
+  setResult("Selectionne ton Pokemon pour demarrer.");
+}
+
+function restartBattle(){
+  if(!state.selectedKey) return;
+  void startBattle(state.selectedKey);
+}
+
+document.addEventListener("pointerdown",()=>{
+  unlockAudioContext();
+  if(pendingBattleMusicRetry){
+    pendingBattleMusicRetry=false;
+    battleBgm.play().catch(()=>{ pendingBattleMusicRetry=true; });
+  }
+  if(pendingLegendarySfxRetry){
+    pendingLegendarySfxRetry=false;
+    legendarySfx.play().catch(()=>{ pendingLegendarySfxRetry=true; });
+  }
+  if(pendingWinMediaRetry && winAudio.src){
+    pendingWinMediaRetry=false;
+    winAudio.play().catch(()=>{ pendingWinMediaRetry=true; });
+  }
+},{passive:true});
+
+document.querySelectorAll("[data-pick]").forEach((btn)=>{
+  btn.addEventListener("click",()=>startBattle(btn.dataset.pick));
+});
+attackBtn.addEventListener("click",onAttack);
+specialBtn.addEventListener("click",onSpecial);
+itemBtn.addEventListener("click",onItem);
+itemPotionBtn.addEventListener("click",onUsePotion);
+itemLegendaryBtn.addEventListener("click",onLegendary);
+restartBtn.addEventListener("click",restartBattle);
+backBtn.addEventListener("click",backToSelection);
+</script>
+</body>
+</html>
+
+
+
