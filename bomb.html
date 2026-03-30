@@ -1,0 +1,784 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cadenas Mathématique</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0f0c29;
+      --bg2: #1a1650;
+      --gold: #f7c948;
+      --gold2: #e6a817;
+      --cyan: #00e5ff;
+      --green: #39ff85;
+      --red: #ff4f6b;
+      --card: rgba(255,255,255,0.05);
+      --border: rgba(255,255,255,0.12);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Nunito', sans-serif;
+      background: var(--bg);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      overflow-x: hidden;
+      color: #fff;
+    }
+
+    /* Starfield */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        radial-gradient(1px 1px at 10% 20%, rgba(255,255,255,0.6) 0%, transparent 100%),
+        radial-gradient(1px 1px at 30% 50%, rgba(255,255,255,0.4) 0%, transparent 100%),
+        radial-gradient(1px 1px at 70% 15%, rgba(255,255,255,0.5) 0%, transparent 100%),
+        radial-gradient(1px 1px at 90% 40%, rgba(255,255,255,0.3) 0%, transparent 100%),
+        radial-gradient(1px 1px at 50% 80%, rgba(255,255,255,0.5) 0%, transparent 100%),
+        radial-gradient(1px 1px at 80% 70%, rgba(255,255,255,0.4) 0%, transparent 100%),
+        radial-gradient(2px 2px at 20% 90%, rgba(247,201,72,0.4) 0%, transparent 100%),
+        radial-gradient(2px 2px at 60% 35%, rgba(0,229,255,0.3) 0%, transparent 100%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .container {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      max-width: 480px;
+      padding: 24px 16px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 24px;
+    }
+
+    /* Header */
+    .header {
+      text-align: center;
+    }
+    .header h1 {
+      font-family: 'Fredoka One', cursive;
+      font-size: 2.6rem;
+      letter-spacing: 1px;
+      background: linear-gradient(135deg, var(--gold), var(--cyan));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      line-height: 1.1;
+    }
+    .header p {
+      color: rgba(255,255,255,0.5);
+      font-size: 0.9rem;
+      margin-top: 4px;
+      font-weight: 600;
+    }
+
+    /* Score bar */
+    .score-bar {
+      display: flex;
+      gap: 16px;
+      justify-content: center;
+    }
+    .score-chip {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 50px;
+      padding: 6px 18px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .score-chip span { color: var(--gold); font-size: 1.05rem; }
+
+    /* Padlock card */
+    .game-card {
+      background: linear-gradient(160deg, rgba(255,255,255,0.07) 0%, rgba(255,255,255,0.02) 100%);
+      border: 1px solid var(--border);
+      border-radius: 28px;
+      padding: 32px 28px;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 24px;
+      backdrop-filter: blur(12px);
+      box-shadow: 0 24px 60px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.1);
+      transition: box-shadow 0.3s;
+    }
+
+    /* Padlock SVG area */
+    .lock-visual {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .lock-svg {
+      width: 120px;
+      height: 140px;
+      filter: drop-shadow(0 0 18px rgba(247,201,72,0.4));
+      transition: filter 0.4s, transform 0.5s;
+    }
+    .lock-svg.open {
+      filter: drop-shadow(0 0 28px rgba(57,255,133,0.8));
+      transform: rotate(-5deg) scale(1.08);
+    }
+    .lock-svg.shake {
+      animation: shake 0.4s ease;
+    }
+    @keyframes shake {
+      0%,100% { transform: translateX(0); }
+      20% { transform: translateX(-8px) rotate(-2deg); }
+      40% { transform: translateX(8px) rotate(2deg); }
+      60% { transform: translateX(-6px) rotate(-1deg); }
+      80% { transform: translateX(6px) rotate(1deg); }
+    }
+
+    /* Level badge */
+    .level-badge {
+      position: absolute;
+      top: -8px;
+      right: -14px;
+      background: linear-gradient(135deg, var(--cyan), #0077ff);
+      border-radius: 50px;
+      padding: 3px 10px;
+      font-size: 0.72rem;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      box-shadow: 0 4px 12px rgba(0,229,255,0.4);
+    }
+
+    /* Enigma */
+    .enigma-box {
+      background: rgba(247,201,72,0.08);
+      border: 1px solid rgba(247,201,72,0.25);
+      border-radius: 16px;
+      padding: 18px 22px;
+      width: 100%;
+      text-align: center;
+    }
+    .enigma-label {
+      font-size: 0.72rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: var(--gold2);
+      margin-bottom: 8px;
+    }
+    .enigma-text {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: #fff;
+      line-height: 1.5;
+    }
+    .enigma-hint {
+      margin-top: 8px;
+      font-size: 0.8rem;
+      color: rgba(255,255,255,0.4);
+      font-weight: 600;
+    }
+
+    /* Digit display */
+    .digit-display {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+    .digit-slot {
+      width: 64px;
+      height: 80px;
+      background: rgba(0,0,0,0.35);
+      border: 2px solid var(--border);
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Fredoka One', cursive;
+      font-size: 2.4rem;
+      color: var(--gold);
+      position: relative;
+      overflow: hidden;
+      transition: border-color 0.3s, box-shadow 0.3s;
+    }
+    .digit-slot.active {
+      border-color: var(--cyan);
+      box-shadow: 0 0 18px rgba(0,229,255,0.35), inset 0 0 12px rgba(0,229,255,0.08);
+    }
+    .digit-slot.correct {
+      border-color: var(--green);
+      box-shadow: 0 0 18px rgba(57,255,133,0.4);
+    }
+    .digit-slot.wrong {
+      border-color: var(--red);
+      box-shadow: 0 0 18px rgba(255,79,107,0.4);
+    }
+    .digit-slot::after {
+      content: '';
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      height: 2px;
+      background: var(--cyan);
+      transform: scaleX(0);
+      transition: transform 0.2s;
+    }
+    .digit-slot.active::after { transform: scaleX(1); }
+
+    /* Keypad */
+    .keypad {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      width: 100%;
+    }
+    .key-btn {
+      background: rgba(255,255,255,0.06);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 16px;
+      font-family: 'Fredoka One', cursive;
+      font-size: 1.5rem;
+      color: #fff;
+      cursor: pointer;
+      transition: background 0.15s, transform 0.1s, box-shadow 0.15s;
+      text-align: center;
+      user-select: none;
+    }
+    .key-btn:hover {
+      background: rgba(255,255,255,0.12);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 18px rgba(0,0,0,0.3);
+    }
+    .key-btn:active { transform: scale(0.93); }
+    .key-btn.del {
+      font-size: 1.2rem;
+      background: rgba(255,79,107,0.12);
+      border-color: rgba(255,79,107,0.25);
+      color: var(--red);
+    }
+    .key-btn.del:hover { background: rgba(255,79,107,0.22); }
+    .key-btn.validate {
+      grid-column: span 3;
+      background: linear-gradient(135deg, var(--gold), var(--gold2));
+      border: none;
+      color: #1a1200;
+      font-size: 1rem;
+      font-family: 'Nunito', sans-serif;
+      font-weight: 800;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      padding: 17px;
+      box-shadow: 0 8px 24px rgba(247,201,72,0.35);
+    }
+    .key-btn.validate:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 12px 32px rgba(247,201,72,0.5);
+    }
+
+    /* Feedback */
+    .feedback {
+      min-height: 28px;
+      font-size: 0.95rem;
+      font-weight: 700;
+      text-align: center;
+      transition: opacity 0.3s;
+    }
+    .feedback.success { color: var(--green); }
+    .feedback.error { color: var(--red); }
+
+    /* Next button */
+    .next-btn {
+      display: none;
+      background: linear-gradient(135deg, var(--cyan), #0077ff);
+      border: none;
+      border-radius: 14px;
+      padding: 14px 36px;
+      font-family: 'Nunito', sans-serif;
+      font-weight: 800;
+      font-size: 1rem;
+      color: #fff;
+      cursor: pointer;
+      letter-spacing: 0.5px;
+      box-shadow: 0 8px 24px rgba(0,229,255,0.3);
+      transition: transform 0.2s, box-shadow 0.2s;
+      animation: popIn 0.4s cubic-bezier(0.34,1.56,0.64,1);
+    }
+    .next-btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 12px 32px rgba(0,229,255,0.5);
+    }
+    @keyframes popIn {
+      0% { transform: scale(0.5); opacity: 0; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+
+    /* Progress */
+    .progress-wrap {
+      width: 100%;
+    }
+    .progress-dots {
+      display: flex;
+      gap: 6px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    .dot {
+      width: 10px; height: 10px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.15);
+      transition: background 0.3s, transform 0.3s;
+    }
+    .dot.done { background: var(--green); transform: scale(1.15); }
+    .dot.current { background: var(--gold); box-shadow: 0 0 8px var(--gold); }
+
+    /* Win screen */
+    .win-screen {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      gap: 20px;
+      text-align: center;
+      padding: 20px;
+    }
+    .win-emoji { font-size: 5rem; animation: bounce 0.8s infinite alternate; }
+    @keyframes bounce { from { transform: translateY(0); } to { transform: translateY(-16px); } }
+    .win-title {
+      font-family: 'Fredoka One', cursive;
+      font-size: 2.2rem;
+      background: linear-gradient(135deg, var(--gold), var(--cyan));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .win-score {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: rgba(255,255,255,0.7);
+    }
+    .restart-btn {
+      background: linear-gradient(135deg, var(--gold), var(--gold2));
+      border: none;
+      border-radius: 14px;
+      padding: 14px 40px;
+      font-family: 'Nunito', sans-serif;
+      font-weight: 800;
+      font-size: 1rem;
+      color: #1a1200;
+      cursor: pointer;
+      box-shadow: 0 8px 24px rgba(247,201,72,0.4);
+      transition: transform 0.2s;
+    }
+    .restart-btn:hover { transform: translateY(-3px); }
+
+    /* Confetti canvas */
+    #confetti { position: fixed; inset: 0; pointer-events: none; z-index: 10; }
+  </style>
+</head>
+<body>
+<canvas id="confetti"></canvas>
+
+<div class="container">
+  <div class="header">
+    <h1>🔐 Cadenas Math</h1>
+    <p>Résous l'énigme, trouve le code !</p>
+  </div>
+
+  <div class="score-bar">
+    <div class="score-chip">🏆 Score <span id="scoreVal">0</span></div>
+    <div class="score-chip">⚡ Série <span id="streakVal">0</span></div>
+  </div>
+
+  <!-- Main game -->
+  <div id="gameArea" class="game-card">
+    <div class="lock-visual">
+      <svg id="lockSvg" class="lock-svg" viewBox="0 0 120 140" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <!-- Shackle -->
+        <g id="shackle">
+          <path d="M35 65 L35 38 Q35 12 60 12 Q85 12 85 38 L85 65" stroke="#f7c948" stroke-width="10" stroke-linecap="round" fill="none"/>
+        </g>
+        <!-- Body -->
+        <rect x="14" y="60" width="92" height="70" rx="16" fill="#1e1a5e" stroke="#f7c948" stroke-width="3"/>
+        <rect x="20" y="66" width="80" height="58" rx="12" fill="url(#bodyGrad)"/>
+        <!-- Keyhole -->
+        <circle cx="60" cy="90" r="12" fill="#0f0c29" stroke="#f7c948" stroke-width="2"/>
+        <rect x="55" y="90" width="10" height="16" rx="3" fill="#0f0c29"/>
+        <!-- Screws -->
+        <circle cx="28" cy="74" r="4" fill="#2a2470" stroke="#f7c948" stroke-width="1"/>
+        <circle cx="92" cy="74" r="4" fill="#2a2470" stroke="#f7c948" stroke-width="1"/>
+        <!-- Shine -->
+        <rect x="22" y="68" width="30" height="6" rx="3" fill="rgba(255,255,255,0.06)"/>
+        <defs>
+          <linearGradient id="bodyGrad" x1="20" y1="66" x2="100" y2="124" gradientUnits="userSpaceOnUse">
+            <stop offset="0%" stop-color="#2a2590"/>
+            <stop offset="100%" stop-color="#0f0c29"/>
+          </linearGradient>
+        </defs>
+      </svg>
+      <div class="level-badge" id="levelBadge">Niv. 1</div>
+    </div>
+
+    <div class="enigma-box">
+      <div class="enigma-label">🧩 Énigme</div>
+      <div class="enigma-text" id="enigmaText">Chargement…</div>
+      <div class="enigma-hint" id="enigmaHint"></div>
+    </div>
+
+    <div class="digit-display" id="digitDisplay"></div>
+
+    <div class="keypad" id="keypad">
+      <button class="key-btn" onclick="pressKey('1')">1</button>
+      <button class="key-btn" onclick="pressKey('2')">2</button>
+      <button class="key-btn" onclick="pressKey('3')">3</button>
+      <button class="key-btn" onclick="pressKey('4')">4</button>
+      <button class="key-btn" onclick="pressKey('5')">5</button>
+      <button class="key-btn" onclick="pressKey('6')">6</button>
+      <button class="key-btn" onclick="pressKey('7')">7</button>
+      <button class="key-btn" onclick="pressKey('8')">8</button>
+      <button class="key-btn" onclick="pressKey('9')">9</button>
+      <button class="key-btn del" onclick="pressKey('del')">⌫</button>
+      <button class="key-btn" onclick="pressKey('0')">0</button>
+      <button class="key-btn" onclick="pressKey('+/-')">±</button>
+      <button class="key-btn validate" onclick="validate()">🔓 Ouvrir le cadenas</button>
+    </div>
+
+    <div class="feedback" id="feedback"></div>
+    <button class="next-btn" id="nextBtn" onclick="nextEnigma()">Énigme suivante →</button>
+
+    <div class="progress-wrap">
+      <div class="progress-dots" id="progressDots"></div>
+    </div>
+  </div>
+
+  <!-- Win screen -->
+  <div id="winScreen" class="game-card win-screen">
+    <div class="win-emoji">🎉</div>
+    <div class="win-title">Bravo, génie !</div>
+    <div class="win-score" id="winScoreText"></div>
+    <button class="restart-btn" onclick="restart()">🔄 Rejouer</button>
+  </div>
+</div>
+
+<script>
+const enigmas = [
+  {
+    text: "Je suis le double de 6, moins 3 fois 2.",
+    hint: "Double de 6 = ? — puis soustrais (3 × 2)",
+    answer: 6,
+    digits: 1,
+    level: 1
+  },
+  {
+    text: "Je suis le carré de 4, divisé par 2.",
+    hint: "4 × 4 = ? — divise par 2",
+    answer: 8,
+    digits: 1,
+    level: 1
+  },
+  {
+    text: "Je suis la moitié de 18, plus le tiers de 9.",
+    hint: "18 ÷ 2 = ? — 9 ÷ 3 = ?",
+    answer: 12,
+    digits: 2,
+    level: 2
+  },
+  {
+    text: "Je suis le triple de 7, moins le double de 4.",
+    hint: "3 × 7 = ? — 2 × 4 = ?",
+    answer: 13,
+    digits: 2,
+    level: 2
+  },
+  {
+    text: "Multiplie mes dizaines par 3 et tu obtiens 15. Mes unités sont le quart de 20.",
+    hint: "Dizaines : ? × 3 = 15 — Unités : 20 ÷ 4",
+    answer: 55,
+    digits: 2,
+    level: 3
+  },
+  {
+    text: "Je suis la somme des 5 premiers nombres impairs.",
+    hint: "1 + 3 + 5 + 7 + 9 = ?",
+    answer: 25,
+    digits: 2,
+    level: 3
+  },
+  {
+    text: "Je suis 100 moins le carré de 9.",
+    hint: "9 × 9 = ? — 100 − ? = ?",
+    answer: 19,
+    digits: 2,
+    level: 3
+  },
+  {
+    text: "Je suis le résultat de (5² − 4) × 2 divisé par 7.",
+    hint: "(25 − 4) × 2 ÷ 7 = ?",
+    answer: 6,
+    digits: 1,
+    level: 4
+  },
+  {
+    text: "Je suis le nombre de secondes dans 2 minutes, divisé par 12.",
+    hint: "2 minutes = ? sec — ÷ 12",
+    answer: 10,
+    digits: 2,
+    level: 4
+  },
+  {
+    text: "Mes dizaines sont le double de 4. Mes unités sont la racine carrée de 9.",
+    hint: "Dizaines : 2 × 4 — Unités : √9",
+    answer: 83,
+    digits: 2,
+    level: 5
+  }
+];
+
+let current = 0;
+let score = 0;
+let streak = 0;
+let entry = '';
+let negative = false;
+let solved = false;
+
+function init() {
+  renderDots();
+  loadEnigma();
+}
+
+function renderDots() {
+  const d = document.getElementById('progressDots');
+  d.innerHTML = enigmas.map((_, i) =>
+    `<div class="dot${i < current ? ' done' : i === current ? ' current' : ''}" id="dot${i}"></div>`
+  ).join('');
+}
+
+function loadEnigma() {
+  const e = enigmas[current];
+  document.getElementById('enigmaText').textContent = e.text;
+  document.getElementById('enigmaHint').textContent = e.hint;
+  document.getElementById('levelBadge').textContent = 'Niv. ' + e.level;
+  document.getElementById('feedback').textContent = '';
+  document.getElementById('feedback').className = 'feedback';
+  document.getElementById('nextBtn').style.display = 'none';
+  document.getElementById('keypad').style.display = 'grid';
+
+  entry = '';
+  negative = false;
+  solved = false;
+
+  // Reset lock
+  const svg = document.getElementById('lockSvg');
+  svg.classList.remove('open', 'shake');
+  resetShackle();
+
+  buildDigits(e.digits);
+  renderDots();
+}
+
+function buildDigits(n) {
+  const d = document.getElementById('digitDisplay');
+  d.innerHTML = '';
+  for (let i = 0; i < n; i++) {
+    const slot = document.createElement('div');
+    slot.className = 'digit-slot' + (i === 0 ? ' active' : '');
+    slot.id = 'slot' + i;
+    slot.textContent = '_';
+    d.appendChild(slot);
+  }
+}
+
+function pressKey(k) {
+  if (solved) return;
+  const e = enigmas[current];
+  const maxLen = e.digits;
+
+  if (k === 'del') {
+    if (entry.length > 0) entry = entry.slice(0, -1);
+  } else if (k === '+/-') {
+    negative = !negative;
+  } else {
+    if (entry.length < maxLen) entry += k;
+  }
+  updateDisplay();
+}
+
+function updateDisplay() {
+  const e = enigmas[current];
+  const digits = e.digits;
+  const filled = (negative ? '-' : '') + entry;
+  for (let i = 0; i < digits; i++) {
+    const slot = document.getElementById('slot' + i);
+    if (!slot) continue;
+    slot.textContent = entry[i] || '_';
+    slot.classList.remove('active');
+    if (i === entry.length) slot.classList.add('active');
+  }
+}
+
+function validate() {
+  if (solved) return;
+  const e = enigmas[current];
+  const val = parseInt((negative ? '-' : '') + entry);
+  if (isNaN(val) || entry === '') {
+    showFeedback('Saisis un nombre !', 'error');
+    return;
+  }
+
+  if (val === e.answer) {
+    solved = true;
+    streak++;
+    score += 10 + (streak > 1 ? (streak - 1) * 3 : 0);
+    updateScore();
+    openLock();
+    markDigits('correct');
+    showFeedback('🎉 Bravo ! Le cadenas est ouvert !', 'success');
+    document.getElementById('nextBtn').style.display = 'inline-block';
+    document.getElementById('keypad').style.display = 'none';
+    if (current < enigmas.length - 1) launchConfetti(40);
+  } else {
+    streak = 0;
+    updateScore();
+    shakeLock();
+    markDigits('wrong');
+    showFeedback('❌ Mauvais code ! Réessaie…', 'error');
+    setTimeout(() => {
+      entry = '';
+      markDigits('');
+      updateDisplay();
+    }, 700);
+  }
+}
+
+function markDigits(cls) {
+  const e = enigmas[current];
+  for (let i = 0; i < e.digits; i++) {
+    const slot = document.getElementById('slot' + i);
+    if (!slot) continue;
+    slot.classList.remove('correct', 'wrong', 'active');
+    if (cls) slot.classList.add(cls);
+  }
+}
+
+function openLock() {
+  const svg = document.getElementById('lockSvg');
+  svg.classList.add('open');
+  // Animate shackle up
+  const shackle = document.getElementById('shackle');
+  shackle.style.transition = 'transform 0.5s cubic-bezier(0.34,1.56,0.64,1)';
+  shackle.style.transform = 'translateY(-22px)';
+}
+
+function resetShackle() {
+  const shackle = document.getElementById('shackle');
+  shackle.style.transition = 'none';
+  shackle.style.transform = '';
+}
+
+function shakeLock() {
+  const svg = document.getElementById('lockSvg');
+  svg.classList.remove('shake');
+  void svg.offsetWidth;
+  svg.classList.add('shake');
+}
+
+function showFeedback(msg, type) {
+  const fb = document.getElementById('feedback');
+  fb.textContent = msg;
+  fb.className = 'feedback ' + type;
+}
+
+function updateScore() {
+  document.getElementById('scoreVal').textContent = score;
+  document.getElementById('streakVal').textContent = streak;
+}
+
+function nextEnigma() {
+  current++;
+  if (current >= enigmas.length) {
+    showWin();
+  } else {
+    loadEnigma();
+  }
+}
+
+function showWin() {
+  document.getElementById('gameArea').style.display = 'none';
+  const w = document.getElementById('winScreen');
+  w.style.display = 'flex';
+  document.getElementById('winScoreText').textContent = `Score final : ${score} pts — Parfait sur ${enigmas.length} cadenas ! 🔐`;
+  launchConfetti(150);
+}
+
+function restart() {
+  current = 0;
+  score = 0;
+  streak = 0;
+  updateScore();
+  document.getElementById('winScreen').style.display = 'none';
+  document.getElementById('gameArea').style.display = 'flex';
+  loadEnigma();
+}
+
+// ---- Confetti ----
+const canvas = document.getElementById('confetti');
+const ctx = canvas.getContext('2d');
+let particles = [];
+function launchConfetti(n) {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+  const colors = ['#f7c948','#00e5ff','#39ff85','#ff4f6b','#ffffff','#b48fff'];
+  for (let i = 0; i < n; i++) {
+    particles.push({
+      x: Math.random() * canvas.width,
+      y: -10,
+      r: Math.random() * 6 + 4,
+      color: colors[Math.floor(Math.random() * colors.length)],
+      speed: Math.random() * 3 + 2,
+      spin: Math.random() * 0.2 - 0.1,
+      angle: Math.random() * Math.PI * 2,
+      drift: Math.random() * 2 - 1
+    });
+  }
+  requestAnimationFrame(drawConfetti);
+}
+function drawConfetti() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  particles = particles.filter(p => p.y < canvas.height + 20);
+  particles.forEach(p => {
+    p.y += p.speed;
+    p.x += p.drift;
+    p.angle += p.spin;
+    ctx.save();
+    ctx.translate(p.x, p.y);
+    ctx.rotate(p.angle);
+    ctx.fillStyle = p.color;
+    ctx.fillRect(-p.r / 2, -p.r / 2, p.r, p.r * 1.6);
+    ctx.restore();
+  });
+  if (particles.length > 0) requestAnimationFrame(drawConfetti);
+  else ctx.clearRect(0, 0, canvas.width, canvas.height);
+}
+
+// Keyboard support
+document.addEventListener('keydown', e => {
+  if (e.key >= '0' && e.key <= '9') pressKey(e.key);
+  else if (e.key === 'Backspace') pressKey('del');
+  else if (e.key === 'Enter') validate();
+  else if (e.key === '-') pressKey('+/-');
+});
+
+init();
+</script>
+</body>
+</html>
