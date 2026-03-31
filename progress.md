@@ -43,3 +43,16 @@ TODO / Suggestions:
 - Boosted moon-blade projectile visibility: size increased to 72px and stronger glow/contrast. Intensified attack colors (electrik yellow, water blue, grass green, psy white).
 - Added battle intro BGM autoplay from image/combat/stereo_color-battle-drum-493709.mp3, with autoplay retry on next user interaction and proper stop on battle end/return.
 - Added dedicated legendary SFX hook: plays image/combat/SFB-ak47_3.mp3 when legendary animation starts and force-stops at animation end (also reset on battle end/restart/return).
+- Connection logic pass (branch connection):
+  - Added shared progression wiring across pages using game-state.js + water-overlay.js on lock/tableau/sitePlomberie/panier/page404/combat.
+  - Added navigation guards: require game started on puzzle pages; periodic game-over redirect checks on puzzle pages.
+  - Added/kept explicit return link from lock to index (moteur de recherche).
+  - Plomberie trial now validates with code Canard2026 then marks `plomberie` complete and redirects to `index.html?completed=plomberie`.
+  - Tableau trial now validates exact assembled word `SIPHON`, marks `tableau` complete, then redirects to `index.html?completed=tableau`.
+  - Combat page now enforces gate via `requireCombatOrRedirect()`.
+- Verification:
+  - JavaScript syntax checks passed for game-state.js, water-overlay.js, script.js, tableau.js (`node --check`).
+- Remaining attention point:
+  - `index.html` was already heavily modified before this pass; logic appears aligned but deserves an in-browser smoke test for full flow (start -> 3 trials -> combat unlock).
+- Playwright check: web_game_playwright_client.js execution failed locally because the playwright package is not installed as a Node import dependency for that script context (ERR_MODULE_NOT_FOUND).
+- Index search upgraded: added 10 keywords each for lock/tableau/siteplomberie (combat excluded), and each recognized query now shows a dedicated search result card with page description + open button.

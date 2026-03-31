@@ -121,7 +121,11 @@ document.addEventListener('DOMContentLoaded', function () {
             const code = prompt('Veuillez entrer le code de validation :');
             if (code === null) return; // Annulé
             if (code === 'Canard2026') {
-                window.location.href = 'sitePlomberie.html';
+                const game = window.GameState;
+                if (game) {
+                    game.completeTrial('plomberie');
+                }
+                window.location.href = 'index.html?completed=plomberie';
             } else {
                 errorMsg.textContent = 'Code faux';
             }

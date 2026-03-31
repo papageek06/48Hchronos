@@ -364,12 +364,28 @@
 
     /* Confetti */
     #confetti { position: fixed; inset: 0; pointer-events: none; z-index: 100; }
+
+    .back-search {
+      position: fixed;
+      top: 14px;
+      left: 14px;
+      z-index: 5;
+      text-decoration: none;
+      color: #f7e3b6;
+      border: 1px solid rgba(200,150,62,0.45);
+      border-radius: 999px;
+      padding: 8px 12px;
+      background: rgba(26,16,8,0.7);
+      font-size: 0.9rem;
+      letter-spacing: 0.03em;
+    }
   </style>
 </head>
 <body>
 
 <canvas id="confetti"></canvas>
 <div class="dust" id="dust"></div>
+<a class="back-search" href="index.html">← Moteur de recherche</a>
 
 <div class="scroll">
   <div class="title-wrap">
@@ -454,7 +470,16 @@
   </div>
 </div>
 
+<script src="game-state.js"></script>
+<script src="water-overlay.js"></script>
 <script>
+const game = window.GameState;
+if (game) {
+  game.requireStartedOrRedirect();
+  game.redirectIfGameOver();
+  setInterval(() => game.redirectIfGameOver(), 1000);
+}
+
 // ─── Enigma answer: 14 - 15 - 1 - 8 ───
 // Juillet = 7 (dernier)
 // premier = 7×2 = 14
@@ -542,6 +567,12 @@ function validate() {
     document.getElementById('saveSection').style.display = 'flex';
     launchConfetti(80);
     loadSaved();
+    if (game) {
+      game.completeTrial('lock');
+      setTimeout(() => {
+        window.location.href = 'index.html?completed=lock';
+      }, 1200);
+    }
   } else {
     shakeLock();
     markSlots('wrong');

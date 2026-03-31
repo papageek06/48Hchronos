@@ -66,6 +66,16 @@
     <a href="sitePlomberie.html" class="retour">RETOUR À L'ACCUEIL DU SITE</a>
 
     <p style="color: #ffffff;">Canard2026</p>
-
+    <script src="game-state.js"></script>
+    <script>
+      (() => {
+        const game = window.GameState;
+        if (!game) return;
+        game.requireStartedOrRedirect();
+        game.redirectIfGameOver();
+        setInterval(() => game.redirectIfGameOver(), 1000);
+      })();
+    </script>
+    <script src="water-overlay.js"></script>
 </body>
 </html>

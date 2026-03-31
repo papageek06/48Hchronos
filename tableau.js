@@ -124,11 +124,14 @@ const assembledWord = document.getElementById("assembledWord");
 const selectionMeta = document.getElementById("selectionMeta");
 const selectedList = document.getElementById("selectedList");
 const resetButton = document.getElementById("resetSelection");
+const game = window.GameState;
+const TARGET_WORD = "SIPHON";
 
 const selectedNumbers = [];
 const selectedSet = new Set();
 const elementMap = new Map(elements.map((element) => [element.number, element]));
 const buttonMap = new Map();
+let trialCompleted = false;
 
 const seriesAnchors = [
   { label: "57-71", detail: "Lanthanides", row: 6, column: 3 },
@@ -225,9 +228,11 @@ function updateSelectionDisplay() {
   });
 
   updateSelectedList(selectedElements);
+  maybeCompleteTrial(formedWord);
 }
 
 function toggleElement(number) {
+  if (trialCompleted) return;
   if (selectedSet.has(number)) {
     selectedSet.delete(number);
     const index = selectedNumbers.indexOf(number);
@@ -243,9 +248,28 @@ function toggleElement(number) {
 }
 
 function resetSelection() {
+  if (trialCompleted) return;
   selectedSet.clear();
   selectedNumbers.length = 0;
   updateSelectionDisplay();
+}
+
+function maybeCompleteTrial(formedWord) {
+  if (trialCompleted) return;
+  const normalized = formedWord.toUpperCase();
+  if (normalized !== TARGET_WORD) return;
+
+  trialCompleted = true;
+  selectionMeta.textContent = `Mot valide: ${formedWord}. Retour au moteur de recherche...`;
+  resetButton.disabled = true;
+
+  if (game) {
+    game.completeTrial("tableau");
+  }
+
+  setTimeout(() => {
+    window.location.href = "index.html?completed=tableau";
+  }, 1200);
 }
 
 renderTable();

@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="fr">
 <head>
   <meta charset="UTF-8" />
@@ -156,6 +156,35 @@
       line-height: 1.7;
     }
 
+    .result-keywords {
+      margin-top: 10px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: center;
+    }
+
+    .keyword-chip {
+      border-radius: 999px;
+      padding: 5px 10px;
+      background: rgba(11, 120, 209, 0.12);
+      border: 1px solid rgba(11, 120, 209, 0.22);
+      color: #0d4f7f;
+      font-size: 0.85rem;
+      font-weight: 700;
+    }
+
+    .open-result-btn {
+      margin-top: 14px;
+      border: none;
+      border-radius: 999px;
+      background: var(--accent);
+      color: white;
+      padding: 10px 16px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
     .footer {
       margin-top: 42px;
       font-size: 0.95rem;
@@ -185,6 +214,82 @@
       color: var(--danger);
       margin-top: 18px;
     }
+
+    .hud-row {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin: 0 0 16px;
+    }
+
+    .hud-chip {
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.9);
+      border: 1px solid rgba(3, 78, 123, 0.2);
+      font-size: 0.92rem;
+      font-weight: 700;
+      color: #14527d;
+    }
+
+    .overlay {
+      position: absolute;
+      inset: 0;
+      z-index: 4;
+      display: grid;
+      place-items: center;
+      padding: 20px;
+      background: rgba(5, 34, 55, 0.45);
+      backdrop-filter: blur(4px);
+    }
+
+    .overlay.hidden {
+      display: none !important;
+    }
+
+    .overlay-card {
+      width: min(760px, 100%);
+      background: rgba(255, 255, 255, 0.95);
+      border-radius: 20px;
+      border: 1px solid rgba(3, 78, 123, 0.18);
+      padding: 24px;
+      text-align: left;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.25);
+      display: grid;
+      gap: 12px;
+    }
+
+    .overlay-card h2 {
+      margin: 0;
+      color: #075383;
+    }
+
+    .overlay-card p {
+      line-height: 1.6;
+      color: #1f4f7b;
+    }
+
+    .overlay-actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 4px;
+    }
+
+    .overlay-btn {
+      border: 0;
+      border-radius: 12px;
+      background: var(--accent);
+      color: #fff;
+      padding: 12px 16px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    .overlay-btn.alt {
+      background: #183a59;
+    }
   </style>
 </head>
 <body>
@@ -194,139 +299,246 @@
     <div class="wave two"></div>
     <div class="content">
       <div class="logo">Aqua<span>Go</span></div>
-      <div class="subtitle">Recherchez un mot-clé.</div>
+      <div class="subtitle">Retrouve les pages d'enigmes avant la montee totale de l'eau.</div>
+
+      <div class="hud-row">
+        <div id="timerChip" class="hud-chip">Temps: 12:00</div>
+        <div id="progressChip" class="hud-chip">Epreuves: 0/3</div>
+      </div>
 
       <div class="search-card">
-        <input id="searchInput" type="text" placeholder="Rechercher... ex: source, vague, rivière" autocomplete="off" />
+        <input id="searchInput" type="text" placeholder="Rechercher... ex: lock, tableau, siteplomberie, combat" autocomplete="off" />
         <button id="searchButton">Chercher</button>
       </div>
 
       <div id="message" class="result hidden"></div>
 
       <div class="footer">
-        AquaGo — page de recherche.
+        AquaGo - page de recherche.
+      </div>
+    </div>
+
+    <div id="introOverlay" class="overlay">
+      <div class="overlay-card">
+        <h2>Mise en situation</h2>
+        <p>
+          L'eau monte pendant 12 minutes des que tu lances la partie.
+          Valide les 3 epreuves: <strong>lock</strong>, <strong>tableau</strong>, <strong>siteplomberie</strong>.
+        </p>
+        <p>Le combat final reste bloque tant que les 3 epreuves ne sont pas validees.</p>
+        <div class="overlay-actions">
+          <button id="launchBtn" class="overlay-btn" type="button">Lancer la partie</button>
+          <button id="resetBtn" class="overlay-btn alt" type="button">Reinitialiser</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="gameOverOverlay" class="overlay hidden">
+      <div class="overlay-card">
+        <h2>Game Over</h2>
+        <p>L'eau a atteint le plafond avant la fin des 3 epreuves.</p>
+        <div class="overlay-actions">
+          <button id="restartBtn" class="overlay-btn" type="button">Recommencer</button>
+        </div>
       </div>
     </div>
   </div>
 
+  <script src="game-state.js"></script>
+  <script src="water-overlay.js"></script>
   <script>
     (() => {
-      const DURATION_MS = 12 * 60_000;
+      const game = window.GameState;
+      if (!game) return;
 
-      const canvas = document.getElementById('water');
-      const ctx = canvas.getContext('2d', { alpha: true });
-      if (!ctx) return;
+      const searchButton = document.getElementById("searchButton");
+      const searchInput = document.getElementById("searchInput");
+      const messageBox = document.getElementById("message");
+      const timerChip = document.getElementById("timerChip");
+      const progressChip = document.getElementById("progressChip");
+      const introOverlay = document.getElementById("introOverlay");
+      const gameOverOverlay = document.getElementById("gameOverOverlay");
+      const launchBtn = document.getElementById("launchBtn");
+      const resetBtn = document.getElementById("resetBtn");
+      const restartBtn = document.getElementById("restartBtn");
 
-      const DPR = () => Math.max(1, Math.min(2, window.devicePixelRatio || 1));
+      const qs = new URLSearchParams(window.location.search);
 
-      let w = 0;
-      let h = 0;
-      let dpr = DPR();
-      let start = performance.now();
+      const searchPages = [
+        {
+          id: "lock",
+          title: "Enigme du Cadenas",
+          url: "lock.html",
+          description: "Resolvez le code du cadenas pour valider l'epreuve lock.",
+          keywords: ["lock", "cadenas", "serrure", "enigme", "ombre", "code", "chiffre", "secret", "verrou", "digicode"]
+        },
+        {
+          id: "tableau",
+          title: "Tableau Periodique",
+          url: "tableau.html",
+          description: "Assemblez les bons symboles chimiques pour trouver le mot attendu.",
+          keywords: ["tableau", "periodique", "chimie", "element", "atome", "symbole", "science", "laboratoire", "siphon", "mendeleiev"]
+        },
+        {
+          id: "siteplomberie",
+          title: "Site Plomberie",
+          url: "sitePlomberie.html",
+          description: "Trouvez l'outil, validez le panier avec le bon code secret.",
+          keywords: ["siteplomberie", "plomberie", "plombier", "tuyau", "fuite", "raccord", "canalisation", "panier", "outil", "cleamolette"]
+        }
+      ];
 
-      const resize = () => {
-        dpr = DPR();
-        w = Math.floor(window.innerWidth);
-        h = Math.floor(window.innerHeight);
-        canvas.width = Math.floor(w * dpr);
-        canvas.height = Math.floor(h * dpr);
-        canvas.style.width = w + 'px';
-        canvas.style.height = h + 'px';
-        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-      };
+      function normalize(value) {
+        return value
+          .normalize("NFD")
+          .replace(/[\u0300-\u036f]/g, "")
+          .toLowerCase()
+          .replace(/[^a-z0-9]/g, "");
+      }
 
-      window.addEventListener('resize', resize, { passive: true });
-      resize();
+      function formatTime(ms) {
+        const s = Math.ceil(ms / 1000);
+        const m = String(Math.floor(s / 60)).padStart(2, "0");
+        const sec = String(s % 60).padStart(2, "0");
+        return `${m}:${sec}`;
+      }
 
-      const cssVar = (name, fallback) => {
-        const value = getComputedStyle(document.documentElement).getPropertyValue(name).trim();
-        return value || fallback;
-      };
+      function escapeHtml(value) {
+        return value
+          .replaceAll("&", "&amp;")
+          .replaceAll("<", "&lt;")
+          .replaceAll(">", "&gt;");
+      }
 
-      const draw = (now) => {
-        const elapsed = now - start;
-        const t = Math.min(1, elapsed / DURATION_MS);
+      function showMessage(html, ok = false) {
+        messageBox.innerHTML = html;
+        messageBox.classList.remove("hidden");
+        messageBox.style.borderColor = ok ? "#0b78d1" : "rgba(3, 78, 123, 0.35)";
+      }
 
-        ctx.clearRect(0, 0, w, h);
+      function findPageByKeyword(query) {
+        return searchPages.find((page) =>
+          page.keywords.some((keyword) => normalize(keyword) === query)
+        ) || null;
+      }
 
-        const waterY = h * (1 - t);
+      function showSearchResult(page, rawQuery) {
+        const chips = page.keywords
+          .map((keyword) => `<span class="keyword-chip">${escapeHtml(keyword)}</span>`)
+          .join("");
 
-        const time = elapsed / 1000;
-        const baseAmp = Math.max(6, Math.min(18, h * 0.02));
-        const amp = baseAmp * (0.55 + 0.45 * (1 - Math.pow(1 - t, 2)));
-        const speed = 0.9;
-        const wl1 = Math.max(220, w * 0.35);
-        const wl2 = Math.max(120, w * 0.18);
+        showMessage(
+          `<h2>Resultat trouve: ${escapeHtml(page.title)}</h2>
+           <p>${escapeHtml(page.description)}</p>
+           <p>Mot cle reconnu: <strong>${escapeHtml(rawQuery)}</strong></p>
+           <div class="result-keywords">${chips}</div>
+           <button id="openResultBtn" class="open-result-btn" type="button">Ouvrir la page</button>`,
+          true
+        );
 
-        const grad = ctx.createLinearGradient(0, waterY, 0, h);
-        grad.addColorStop(0, cssVar('--water', 'rgba(30, 144, 255, 0.22)'));
-        grad.addColorStop(1, cssVar('--water-deep', 'rgba(0, 90, 200, 0.28)'));
+        const openResultBtn = document.getElementById("openResultBtn");
+        if (openResultBtn) {
+          openResultBtn.addEventListener(
+            "click",
+            () => {
+              window.location.href = page.url;
+            },
+            { once: true }
+          );
+        }
+      }
 
-        ctx.fillStyle = grad;
-        ctx.beginPath();
-        ctx.moveTo(0, h);
-        ctx.lineTo(0, waterY);
+      function updateHud() {
+        timerChip.textContent = `Temps: ${formatTime(game.getRemainingMs())}`;
+        progressChip.textContent = `Epreuves: ${game.getCompletedCount()}/3`;
+      }
 
-        const step = Math.max(6, Math.floor(w / 140));
-        for (let x = 0; x <= w + step; x += step) {
-          const y =
-            waterY +
-            Math.sin((x / wl1) * Math.PI * 2 + time * speed) * amp +
-            Math.sin((x / wl2) * Math.PI * 2 - time * speed * 1.3) * (amp * 0.45) +
-            Math.sin((x / (wl2 * 0.62)) * Math.PI * 2 + time * speed * 1.9) * (amp * 0.18);
-          ctx.lineTo(x, y);
+      function showGameOver() {
+        gameOverOverlay.classList.remove("hidden");
+        showMessage("<h2>Game Over</h2><p>Le temps est ecoule. Clique sur recommencer.</p>");
+      }
+
+      function tick() {
+        updateHud();
+        if (game.isGameOver()) {
+          showGameOver();
+        }
+      }
+
+      function handleSearch() {
+        if (!game.isStarted()) {
+          showMessage("<h2>Partie non lancee</h2><p>Clique sur <strong>Lancer la partie</strong>.</p>");
+          return;
+        }
+        if (game.isGameOver()) {
+          showGameOver();
+          return;
         }
 
-        ctx.lineTo(w, h);
-        ctx.closePath();
-        ctx.fill();
-
-        ctx.strokeStyle = 'rgba(0, 120, 255, 0.18)';
-        ctx.lineWidth = 2;
-        ctx.beginPath();
-        for (let x = 0; x <= w + step; x += step) {
-          const y =
-            waterY +
-            Math.sin((x / wl1) * Math.PI * 2 + time * speed) * (amp * 0.8) +
-            Math.sin((x / wl2) * Math.PI * 2 - time * speed * 1.3) * (amp * 0.25);
-          if (x === 0) ctx.moveTo(x, y);
-          else ctx.lineTo(x, y);
+        const raw = searchInput.value.trim();
+        if (!raw) {
+          showMessage("<h2>Rien saisi</h2><p>Entrez un mot-cle pour lancer la recherche.</p>");
+          return;
         }
-        ctx.stroke();
 
-        requestAnimationFrame(draw);
+        const query = normalize(raw);
+        if (query === "combat") {
+          if (!game.isCombatUnlocked()) {
+            showMessage("<h2>Combat verrouille</h2><p>Termine les 3 epreuves avant d'aller au combat.</p>");
+            return;
+          }
+          window.location.href = "combat.html";
+          return;
+        }
+
+        const matchedPage = findPageByKeyword(query);
+        if (!matchedPage) {
+          showMessage(`<h2>Aucun resultat</h2><p>La recherche <strong>${escapeHtml(raw)}</strong> ne renvoie aucune page.</p>`);
+          return;
+        }
+
+        showSearchResult(matchedPage, raw);
+      }
+
+      launchBtn.addEventListener("click", () => {
+        game.startGame();
+        introOverlay.classList.add("hidden");
+        gameOverOverlay.classList.add("hidden");
+        showMessage("<h2>Partie lancee</h2><p>L'eau monte. Trouve lock, tableau et siteplomberie.</p>", true);
+        tick();
+      });
+
+      const resetFlow = () => {
+        game.resetGame();
+        window.location.href = "index.html";
       };
 
-      requestAnimationFrame(draw);
+      resetBtn.addEventListener("click", resetFlow);
+      restartBtn.addEventListener("click", resetFlow);
+      searchButton.addEventListener("click", handleSearch);
+      searchInput.addEventListener("keydown", (event) => {
+        if (event.key === "Enter") handleSearch();
+      });
+
+      if (game.isStarted()) {
+        game.startGame();
+        introOverlay.classList.add("hidden");
+      }
+
+      if (qs.get("locked") === "combat") {
+        showMessage("<h2>Combat bloque</h2><p>Le combat est accessible uniquement apres 3/3 epreuves.</p>");
+      }
+      if (qs.get("completed")) {
+        const count = game.getCompletedCount();
+        showMessage(`<h2>Epreuve validee</h2><p>Progression: <strong>${count}/3</strong>.</p>`, true);
+      }
+      if (qs.get("gameover") === "1" || game.isGameOver()) {
+        showGameOver();
+      }
+
+      tick();
+      setInterval(tick, 250);
     })();
-
-    const searchButton = document.getElementById('searchButton');
-    const searchInput = document.getElementById('searchInput');
-    const messageBox = document.getElementById('message');
-
-    function showMessage(html, isSuccess = false) {
-      messageBox.innerHTML = html;
-      messageBox.classList.remove('hidden');
-      messageBox.style.borderColor = isSuccess ? '#0b78d1' : 'rgba(3, 78, 123, 0.12)';
-    }
-
-    function search() {
-      const query = searchInput.value.trim().toLowerCase();
-      if (!query) {
-        showMessage('<h2>Rien saisi</h2><p>Entrez un mot-clé pour lancer la recherche.</p>');
-        return;
-      }
-
-      const pretty = query.replaceAll('<', '&lt;').replaceAll('>', '&gt;');
-      showMessage('<h2>Résultat</h2><p>Recherche effectuée pour : <strong>' + pretty + '</strong></p>', true);
-    }
-
-    searchButton.addEventListener('click', search);
-    searchInput.addEventListener('keydown', event => {
-      if (event.key === 'Enter') {
-        search();
-      }
-    });
   </script>
 </body>
 </html>

@@ -546,6 +546,17 @@ body{
   .player-sprite{width:255px;height:255px}
 }
 </style>
+<script src="game-state.js"></script>
+<script>
+(() => {
+  const game = window.GameState;
+  if (!game) return;
+  game.requireStartedOrRedirect();
+  if (game.redirectIfGameOver()) return;
+  game.requireCombatOrRedirect();
+})();
+</script>
+<script src="water-overlay.js"></script>
 </head>
 <body>
 

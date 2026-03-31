@@ -34,6 +34,17 @@
     </section>
   </main>
 
+  <script src="game-state.js"></script>
+  <script>
+    (() => {
+      const game = window.GameState;
+      if (!game) return;
+      game.requireStartedOrRedirect();
+      game.redirectIfGameOver();
+      setInterval(() => game.redirectIfGameOver(), 1000);
+    })();
+  </script>
+  <script src="water-overlay.js"></script>
   <script src="tableau.js" defer></script>
 </body>
 </html>
