@@ -124,11 +124,16 @@ const assembledWord = document.getElementById("assembledWord");
 const selectionMeta = document.getElementById("selectionMeta");
 const selectedList = document.getElementById("selectedList");
 const resetButton = document.getElementById("resetSelection");
+const successMessage = document.getElementById("successMessage");
 
 const selectedNumbers = [];
 const selectedSet = new Set();
 const elementMap = new Map(elements.map((element) => [element.number, element]));
 const buttonMap = new Map();
+const siphonSequence = [14, 15, 1, 8, 7];
+const redirectDelayMs = 3200;
+
+let puzzleSolved = false;
 
 const seriesAnchors = [
   { label: "57-71", detail: "Lanthanides", row: 6, column: 3 },
@@ -227,7 +232,26 @@ function updateSelectionDisplay() {
   updateSelectedList(selectedElements);
 }
 
+function completePuzzle() {
+  puzzleSolved = true;
+  successMessage.hidden = false;
+  selectionMeta.textContent = "SIPHON trouve. Redirection en cours...";
+  resetButton.disabled = true;
+
+  buttonMap.forEach((button) => {
+    button.disabled = true;
+  });
+
+  window.setTimeout(() => {
+    window.location.href = "index.html";
+  }, redirectDelayMs);
+}
+
 function toggleElement(number) {
+  if (puzzleSolved) {
+    return;
+  }
+
   if (selectedSet.has(number)) {
     selectedSet.delete(number);
     const index = selectedNumbers.indexOf(number);
@@ -240,9 +264,21 @@ function toggleElement(number) {
   }
 
   updateSelectionDisplay();
+
+  const hasSolvedSequence =
+    selectedNumbers.length === siphonSequence.length &&
+    selectedNumbers.every((selectedNumber, index) => selectedNumber === siphonSequence[index]);
+
+  if (hasSolvedSequence) {
+    completePuzzle();
+  }
 }
 
 function resetSelection() {
+  if (puzzleSolved) {
+    return;
+  }
+
   selectedSet.clear();
   selectedNumbers.length = 0;
   updateSelectionDisplay();
