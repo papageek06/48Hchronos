@@ -185,6 +185,44 @@
       cursor: pointer;
     }
 
+    .combat-end-layer {
+      position: absolute;
+      inset: 0;
+      z-index: 3;
+      pointer-events: none;
+      overflow: hidden;
+    }
+
+    .combat-end-layer.hidden {
+      display: none;
+    }
+
+    .combat-impact {
+      position: absolute;
+      width: 110px;
+      height: 110px;
+      transform: translate(-50%, -50%) scale(0.25);
+      background: url("image/combat/impact3.png") center/cover no-repeat;
+      opacity: 0;
+      filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.45));
+      animation: impactPop 0.55s ease forwards;
+    }
+
+    @keyframes impactPop {
+      0% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0.25);
+      }
+      55% {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1.08);
+      }
+      100% {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1);
+      }
+    }
+
     .footer {
       margin-top: 42px;
       font-size: 0.95rem;
@@ -342,6 +380,8 @@
         </div>
       </div>
     </div>
+
+    <div id="combatEndLayer" class="combat-end-layer hidden" aria-hidden="true"></div>
   </div>
 
   <script src="game-state.js"></script>
@@ -358,9 +398,12 @@
       const progressChip = document.getElementById("progressChip");
       const introOverlay = document.getElementById("introOverlay");
       const gameOverOverlay = document.getElementById("gameOverOverlay");
+      const combatEndLayer = document.getElementById("combatEndLayer");
+      const waterCanvas = document.getElementById("water");
       const launchBtn = document.getElementById("launchBtn");
       const resetBtn = document.getElementById("resetBtn");
       const restartBtn = document.getElementById("restartBtn");
+      let isCombatEndAnimating = false;
 
       const qs = new URLSearchParams(window.location.search);
 
@@ -458,6 +501,108 @@
         showMessage("<h2>Game Over</h2><p>Le temps est ecoule. Clique sur recommencer.</p>");
       }
 
+      function drawDrainWater(ctx, w, h, fillRatio, now) {
+        ctx.clearRect(0, 0, w, h);
+        if (fillRatio <= 0) return;
+
+        const waterY = h * (1 - fillRatio);
+        const time = now / 1000;
+        const baseAmp = Math.max(6, Math.min(18, h * 0.02));
+        const amp = baseAmp * (0.55 + 0.45 * fillRatio);
+        const speed = 0.9;
+        const wl1 = Math.max(220, w * 0.35);
+        const wl2 = Math.max(120, w * 0.18);
+
+        const grad = ctx.createLinearGradient(0, waterY, 0, h);
+        grad.addColorStop(0, "rgba(30, 144, 255, 0.22)");
+        grad.addColorStop(1, "rgba(0, 90, 200, 0.28)");
+
+        ctx.fillStyle = grad;
+        ctx.beginPath();
+        ctx.moveTo(0, h);
+        ctx.lineTo(0, waterY);
+        const step = Math.max(6, Math.floor(w / 140));
+        for (let x = 0; x <= w + step; x += step) {
+          const y =
+            waterY +
+            Math.sin((x / wl1) * Math.PI * 2 + time * speed) * amp +
+            Math.sin((x / wl2) * Math.PI * 2 - time * speed * 1.3) * (amp * 0.45);
+          ctx.lineTo(x, y);
+        }
+        ctx.lineTo(w, h);
+        ctx.closePath();
+        ctx.fill();
+      }
+
+      function finishCombatEndAnimation() {
+        if (game) {
+          game.resetGame();
+        }
+        isCombatEndAnimating = false;
+        combatEndLayer.classList.add("hidden");
+        window.location.href = "index.html?post_combat=1";
+      }
+
+      function runCombatEndAnimation() {
+        if (isCombatEndAnimating) return;
+        isCombatEndAnimating = true;
+
+        introOverlay.classList.add("hidden");
+        gameOverOverlay.classList.add("hidden");
+        showMessage("<h2>Combat termine</h2><p>Vidange du niveau en cours...</p>", true);
+
+        const globalOverlay = document.getElementById("global-water-overlay");
+        if (globalOverlay) {
+          globalOverlay.style.opacity = "0";
+        }
+
+        combatEndLayer.classList.remove("hidden");
+        combatEndLayer.innerHTML = "";
+        const impacts = [
+          { x: 64, y: 35 },
+          { x: 49, y: 50 },
+          { x: 36, y: 66 }
+        ];
+        impacts.forEach((impact, index) => {
+          setTimeout(() => {
+            const node = document.createElement("div");
+            node.className = "combat-impact";
+            node.style.left = `${impact.x}%`;
+            node.style.top = `${impact.y}%`;
+            combatEndLayer.appendChild(node);
+          }, index * 320);
+        });
+
+        const ctx = waterCanvas.getContext("2d", { alpha: true });
+        if (!ctx) {
+          finishCombatEndAnimation();
+          return;
+        }
+
+        const resizeCanvas = () => {
+          waterCanvas.width = Math.floor(window.innerWidth);
+          waterCanvas.height = Math.floor(window.innerHeight);
+        };
+        resizeCanvas();
+
+        const startFill = Math.max(0, Math.min(1, 1 - game.getRemainingMs() / game.DURATION_MS));
+        const start = performance.now();
+        const duration = 5000;
+
+        const animate = (now) => {
+          const progress = Math.min(1, (now - start) / duration);
+          const currentFill = startFill * (1 - progress);
+          drawDrainWater(ctx, waterCanvas.width, waterCanvas.height, currentFill, now);
+          if (progress < 1) {
+            requestAnimationFrame(animate);
+            return;
+          }
+          ctx.clearRect(0, 0, waterCanvas.width, waterCanvas.height);
+          finishCombatEndAnimation();
+        };
+        requestAnimationFrame(animate);
+      }
+
       function tick() {
         updateHud();
         if (game.isGameOver()) {
@@ -466,6 +611,10 @@
       }
 
       function handleSearch() {
+        if (isCombatEndAnimating) {
+          showMessage("<h2>Animation en cours</h2><p>Patiente quelques secondes pendant la vidange.</p>");
+          return;
+        }
         if (!game.isStarted()) {
           showMessage("<h2>Partie non lancee</h2><p>Clique sur <strong>Lancer la partie</strong>.</p>");
           return;
@@ -525,15 +674,22 @@
         introOverlay.classList.add("hidden");
       }
 
-      if (qs.get("locked") === "combat") {
-        showMessage("<h2>Combat bloque</h2><p>Le combat est accessible uniquement apres 3/3 epreuves.</p>");
-      }
-      if (qs.get("completed")) {
-        const count = game.getCompletedCount();
-        showMessage(`<h2>Epreuve validee</h2><p>Progression: <strong>${count}/3</strong>.</p>`, true);
-      }
-      if (qs.get("gameover") === "1" || game.isGameOver()) {
-        showGameOver();
+      if (qs.get("combat_done") === "1") {
+        runCombatEndAnimation();
+      } else {
+        if (qs.get("locked") === "combat") {
+          showMessage("<h2>Combat bloque</h2><p>Le combat est accessible uniquement apres 3/3 epreuves.</p>");
+        }
+        if (qs.get("completed")) {
+          const count = game.getCompletedCount();
+          showMessage(`<h2>Epreuve validee</h2><p>Progression: <strong>${count}/3</strong>.</p>`, true);
+        }
+        if (qs.get("post_combat") === "1") {
+          showMessage("<h2>Combat termine</h2><p>Zone securisee. L'eau a ete videe. Clique sur <strong>Lancer la partie</strong> pour rejouer.</p>", true);
+        }
+        if (qs.get("gameover") === "1" || game.isGameOver()) {
+          showGameOver();
+        }
       }
 
       tick();

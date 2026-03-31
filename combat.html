@@ -730,6 +730,7 @@ let audioCtx=null;
 let pendingWinMediaRetry=false;
 let pendingBattleMusicRetry=false;
 let pendingLegendarySfxRetry=false;
+let redirectOnFinishScheduled=false;
 const activeImpactHoles=[];
 
 function preloadAsset(src){
@@ -1048,6 +1049,15 @@ async function playWinFinale(){
   winBanner.classList.add("show");
 }
 
+function scheduleReturnToSearch(){
+  if(redirectOnFinishScheduled) return;
+  redirectOnFinishScheduled=true;
+  setTimeout(()=>{
+    stopWinMedia();
+    window.location.href="index.html?combat_done=1";
+  },3200);
+}
+
 function createBulletHoleAroundEnemy(){
   const targetRect=enemyZone.getBoundingClientRect();
   const layerRect=bulletLayer.getBoundingClientRect();
@@ -1115,6 +1125,7 @@ function endBattle(playerWon){
     enemyStatus.textContent="KO";
     playerStatus.textContent="Tu gagnes le combat.";
     void playWinFinale();
+    scheduleReturnToSearch();
   }else{
     setResult(`${state.player.name} est KO... Defaite. Clique sur "Recommencer combat" pour retenter.`);
     playerStatus.textContent="KO";
@@ -1282,6 +1293,7 @@ async function onUsePotion(){
 }
 
 async function startBattle(key){
+  redirectOnFinishScheduled=false;
   const shooterSrc=await shooterAssetReady;
   shooterImg.src=shooterSrc;
   await battleAssetsReady;
@@ -1360,6 +1372,7 @@ async function startBattle(key){
 }
 
 function backToSelection(){
+  redirectOnFinishScheduled=false;
   state.busy=false;
   state.over=false;
   state.phase="intro";
