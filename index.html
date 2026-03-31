@@ -328,14 +328,25 @@
       <span class="duck-emoji">🦆</span>
       <div class="duck-title">Le canard se réveille !</div>
       <p class="duck-story">
-        Vous avez résolu les trois énigmes. Mais pendant que vous vous félicitiez, 
-        le petit canard en plastique qui flottait tranquillement sur l'eau qui montait 
-        a ouvert un œil… puis l'autre.<br><br>
-        Il n'est <strong>pas content</strong>. Très, très pas content.<br><br>
-        Il gonfle ses plumes, pousse un coin-coin rageur, et s'élance vers vous.<br>
-        <strong>Préparez-vous au combat !</strong>
+        "Attends… attends… qu'est-ce que tu fais ?"<br>
+        "Je viens de comprendre…"<br>
+        "Tu ne cherches pas seulement à réparer le système…"<br>
+        "Tu veux… <strong>vider l'eau</strong> ?!"<br><br>
+        "Mais… mais non ! L'eau, c'est ce qui me maintient ici !"<br>
+        "Sans elle… je coule… je tombe… je disparais !"<br>
+        "Tu te rends compte de ce que tu es en train de faire ?!"<br><br>
+        "J'ai survécu à l'explosion… j'ai attendu… j'ai flotté tout ce temps…"<br>
+        "Et toi… tu veux <strong>tout évacuer</strong> ?!"<br><br>
+        "Non… <strong>NON !</strong> Je refuse !"<br>
+        "Si l'eau disparaît… je n'ai plus aucune chance !"<br>
+        "Tu crois vraiment que je vais te laisser faire ?!"<br><br>
+        "Très bien…"<br>
+        "Si c'est comme ça…"<br>
+        "Alors je vais devoir <strong>te stopper moi-même.</strong>" 🦆⚡<br><br>
+        "Prépare-toi…"<br>
+        "Parce que maintenant… <strong>c'est moi le problème final.</strong>"
       </p>
-      <button class="duck-fight" id="duckFightBtn">⚔️ Affronter le canard</button>
+      <button class="duck-fight" id="duckFightBtn">Affronter le "canard" ?</button>
     </div>
   </div>
 
@@ -345,7 +356,7 @@
       <div class="intro-logo">Aqua<span>Go</span></div>
       <div class="intro-divider"></div>
       <p class="intro-story">
-        <strong>⚠ Alerte — Fuite critique détectée</strong><br><br>
+        <strong>⚠ Alerte - Fuite critique détectée !</strong><br><br>
         “Hey… hey toi ! Oui toi là !”
         <br>
         “Si tu entends ma voix, c’est que t’es encore en vie… pour l’instant.”
@@ -382,7 +393,7 @@
       <div class="subtitle">Recherchez un mot-clé.</div>
 
       <div class="search-card">
-        <input id="searchInput" type="text" placeholder="Rechercher... ex: cadenas, lock, combat" autocomplete="off" />
+        <input id="searchInput" type="text" placeholder="Rechercher... ex: source, vague, rivière" autocomplete="off" />
         <button id="searchButton">Chercher</button>
       </div>
 
@@ -454,19 +465,19 @@
 
     // ~10 mots eau par page, cohérents avec le thème de chaque épreuve
     const routes = {
-      // lock.html — énigme / cadenas
-      cadenas:   'lock.html',
-      serrure:   'lock.html',
-      enigme:    'lock.html',
-      code:      'lock.html',
-      clef:      'lock.html',
-      ombre:     'lock.html',
-      chiffre:   'lock.html',
-      secret:    'lock.html',
-      verrou:    'lock.html',
-      mystere:   'lock.html',
+      // lock.html — eau stagnante / profondeur / immersion
+      ecluse:      'lock.html',
+      barrage:     'lock.html',
+      noyade:      'lock.html',
+      submerge:    'lock.html',
+      immerge:     'lock.html',
+      profondeur:  'lock.html',
+      abysses:     'lock.html',
+      gouffre:     'lock.html',
+      nappe:       'lock.html',
+      inondation:  'lock.html',
 
-      // sitePlomberie.html — site de plomberie
+      // sitePlomberie.html — fuite / réparation / tuyauterie
       plomberie:   'sitePlomberie.html',
       raccord:     'sitePlomberie.html',
       joint:       'sitePlomberie.html',
@@ -478,17 +489,17 @@
       pression:    'sitePlomberie.html',
       fuite:       'sitePlomberie.html',
 
-      // tableau.html — tableau périodique / siphon
-      tableau:     'tableau.html',
-      siphon:      'tableau.html',
-      elements:    'tableau.html',
-      chimie:      'tableau.html',
+      // tableau.html — eau / chimie / composition de l'eau
+      hydrogene:   'tableau.html',
+      oxygene:     'tableau.html',
       molecule:    'tableau.html',
-      symbole:     'tableau.html',
-      formule:     'tableau.html',
-      compose:     'tableau.html',
-      tuyau:       'tableau.html',
-      periodique:  'tableau.html',
+      solution:    'tableau.html',
+      dilution:    'tableau.html',
+      distillee:   'tableau.html',
+      purifier:    'tableau.html',
+      reaction:    'tableau.html',
+      analyse:     'tableau.html',
+      composition: 'tableau.html',
     };
 
     const normalizeQuery = v => v.trim().toLowerCase()

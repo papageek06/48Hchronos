@@ -26,8 +26,10 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      overflow: hidden;
+      overflow-y: auto;
+      overflow-x: hidden;
       position: relative;
+      padding: 20px 0;
     }
 
     /* Texture background */
@@ -63,7 +65,7 @@
       width: min(520px, 96vw);
       background: var(--parch);
       border-radius: 6px 6px 40px 40px / 6px 6px 20px 20px;
-      padding: 48px 40px 40px;
+      padding: clamp(24px, 5vw, 48px) clamp(16px, 5vw, 40px) clamp(24px, 5vw, 40px);
       box-shadow:
         0 0 0 2px var(--gold2),
         0 0 0 5px rgba(200,150,62,0.15),
@@ -93,7 +95,7 @@
     .title-wrap { text-align: center; margin-bottom: 28px; }
     .title-wrap h1 {
       font-family: 'Cinzel Decorative', serif;
-      font-size: 1.25rem;
+      font-size: clamp(1rem, 4vw, 1.25rem);
       color: var(--gold2);
       letter-spacing: 2px;
       text-shadow: 0 1px 0 rgba(255,255,255,0.4);
@@ -151,7 +153,7 @@
       line-height: 1;
     }
     .enigma-text {
-      font-size: 1.05rem;
+      font-size: clamp(0.9rem, 3.5vw, 1.05rem);
       line-height: 1.8;
       color: var(--ink);
       font-style: italic;
@@ -171,12 +173,13 @@
     .slots-wrap {
       display: flex;
       justify-content: center;
-      gap: 10px;
+      gap: clamp(4px, 1.5vw, 10px);
       margin-bottom: 24px;
+      flex-wrap: nowrap;
     }
     .slot {
-      width: 58px;
-      height: 72px;
+      width: clamp(42px, 10vw, 58px);
+      height: clamp(54px, 13vw, 72px);
       background: rgba(26,16,8,0.08);
       border: 2px solid rgba(160,114,30,0.4);
       border-radius: 6px;
@@ -184,7 +187,7 @@
       align-items: center;
       justify-content: center;
       font-family: 'Cinzel Decorative', serif;
-      font-size: 1.6rem;
+      font-size: clamp(1.1rem, 3.5vw, 1.6rem);
       color: var(--ink);
       transition: border-color 0.25s, background 0.25s, box-shadow 0.25s;
       position: relative;
@@ -208,16 +211,16 @@
     .keypad {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
-      gap: 8px;
+      gap: clamp(5px, 1.5vw, 8px);
       margin-bottom: 16px;
     }
     .key {
       background: var(--parch2);
       border: 1px solid rgba(160,114,30,0.4);
       border-radius: 6px;
-      padding: 14px 8px;
+      padding: clamp(10px, 3vw, 14px) 8px;
       font-family: 'Cinzel Decorative', serif;
-      font-size: 1.15rem;
+      font-size: clamp(0.95rem, 3vw, 1.15rem);
       color: var(--ink);
       cursor: pointer;
       transition: background 0.12s, transform 0.08s, box-shadow 0.12s;
@@ -364,6 +367,28 @@
 
     /* Confetti */
     #confetti { position: fixed; inset: 0; pointer-events: none; z-index: 100; }
+
+    /* ── Responsive très petit écran ── */
+    @media (max-width: 380px) {
+      .scroll {
+        border-radius: 4px 4px 24px 24px / 4px 4px 12px 12px;
+      }
+      .lock-svg {
+        width: 80px;
+        height: 94px;
+      }
+      .enigma-scroll {
+        padding: 14px 12px;
+      }
+      .slot-sep {
+        font-size: 0.9rem;
+        padding: 0 1px;
+      }
+      .key.ok {
+        font-size: 0.75rem;
+        padding: 12px;
+      }
+    }
   </style>
   <script src="./water-overlay.js" defer></script>
 
@@ -409,7 +434,7 @@
       Le second dépasse le premier d’une unité.<br>
       Le troisième naît de la différence entre le second et le premier.<br>
       Le quatrième résulte de la somme du précédent et du dernier.<br>
-      Mon dernier est le mois qui ouvre l’été.
+      Mon dernier est le mois qui suit l'ouverture de l’été.
       <br>
       <br>
       Sauras-tu me reconstituer ?

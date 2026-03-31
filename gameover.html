@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Game Over - AquaGo</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&family=Crimson+Pro:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --deep: #020e1f;
+      --blue: #0b4f8a;
+      --glow: rgba(11, 120, 209, 0.55);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      height: 100%;
+      overflow: hidden;
+    }
+
+    body {
+      background: var(--deep);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Crimson Pro', Georgia, serif;
+      color: #c8e8ff;
+      position: relative;
+    }
+
+    /* ── Bulles qui remontent ── */
+    .bubbles {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      overflow: hidden;
+    }
+    .bubble {
+      position: absolute;
+      bottom: -60px;
+      border-radius: 50%;
+      background: rgba(11, 120, 209, 0.18);
+      border: 1px solid rgba(11, 120, 209, 0.35);
+      animation: rise linear infinite;
+    }
+    @keyframes rise {
+      0%   { transform: translateY(0) translateX(0); opacity: 0; }
+      10%  { opacity: 1; }
+      90%  { opacity: 0.6; }
+      100% { transform: translateY(-110vh) translateX(var(--dx)); opacity: 0; }
+    }
+
+    /* ── Lumière sous-marine ── */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background:
+        radial-gradient(ellipse at 50% 0%, rgba(11, 120, 209, 0.18) 0%, transparent 65%),
+        radial-gradient(ellipse at 20% 100%, rgba(2, 30, 80, 0.9) 0%, transparent 60%),
+        radial-gradient(ellipse at 80% 100%, rgba(2, 10, 40, 0.8) 0%, transparent 50%);
+      pointer-events: none;
+    }
+
+    /* ── Contenu ── */
+    .card {
+      position: relative;
+      z-index: 2;
+      text-align: center;
+      padding: clamp(32px, 6vw, 72px) clamp(24px, 8vw, 80px);
+      max-width: 680px;
+      width: 90vw;
+      animation: surfaceIn 1.2s cubic-bezier(0.22, 1, 0.36, 1) both;
+    }
+    @keyframes surfaceIn {
+      from { opacity: 0; transform: translateY(60px) scale(0.95); }
+      to   { opacity: 1; transform: none; }
+    }
+
+    .duck {
+      font-size: clamp(3.5rem, 12vw, 6rem);
+      display: block;
+      margin-bottom: 16px;
+      animation: duckFloat 3s ease-in-out infinite;
+      filter: drop-shadow(0 0 24px rgba(11, 120, 209, 0.6));
+    }
+    @keyframes duckFloat {
+      0%, 100% { transform: translateY(0) rotate(-4deg); }
+      50%       { transform: translateY(-12px) rotate(4deg); }
+    }
+
+    .gameover-title {
+      font-family: 'Cinzel Decorative', serif;
+      font-size: clamp(2rem, 8vw, 4rem);
+      font-weight: 900;
+      letter-spacing: 0.04em;
+      color: #4ab3ff;
+      text-shadow:
+        0 0 20px rgba(11, 120, 209, 0.9),
+        0 0 60px rgba(11, 120, 209, 0.4);
+      margin-bottom: 10px;
+      animation: pulse 2.5s ease-in-out infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { text-shadow: 0 0 20px rgba(11,120,209,0.9), 0 0 60px rgba(11,120,209,0.4); }
+      50%       { text-shadow: 0 0 40px rgba(11,120,209,1),   0 0 100px rgba(11,120,209,0.7); }
+    }
+
+    .gameover-sub {
+      font-size: clamp(1rem, 3.5vw, 1.35rem);
+      color: rgba(200, 232, 255, 0.7);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin-bottom: 36px;
+    }
+
+    .divider {
+      width: 80px;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, #4ab3ff, transparent);
+      margin: 0 auto 32px;
+      border-radius: 99px;
+    }
+
+    .message {
+      font-size: clamp(0.95rem, 3vw, 1.15rem);
+      line-height: 1.85;
+      color: rgba(200, 232, 255, 0.85);
+      font-style: italic;
+      margin-bottom: 40px;
+    }
+
+    .restart-btn {
+      display: inline-block;
+      background: linear-gradient(135deg, #0b5fa5, #0b78d1);
+      color: white;
+      border: none;
+      border-radius: 999px;
+      padding: clamp(12px, 2.5vw, 18px) clamp(28px, 6vw, 52px);
+      font-family: 'Cinzel Decorative', serif;
+      font-size: clamp(0.85rem, 2.5vw, 1rem);
+      letter-spacing: 0.06em;
+      cursor: pointer;
+      text-decoration: none;
+      box-shadow:
+        0 0 0 2px rgba(11, 120, 209, 0.4),
+        0 8px 30px rgba(11, 120, 209, 0.5);
+      transition: transform 0.2s ease, box-shadow 0.2s ease, filter 0.2s ease;
+    }
+    .restart-btn:hover {
+      transform: translateY(-3px);
+      filter: brightness(1.15);
+      box-shadow:
+        0 0 0 2px rgba(11, 120, 209, 0.6),
+        0 14px 40px rgba(11, 120, 209, 0.7);
+    }
+
+    .timer-info {
+      margin-top: 24px;
+      font-size: 0.85rem;
+      color: rgba(200, 232, 255, 0.35);
+      letter-spacing: 0.05em;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Bulles sous-marines -->
+  <div class="bubbles" id="bubbles"></div>
+
+  <div class="card">
+    <h1 class="gameover-title">GAME OVER</h1>
+    <p class="gameover-sub">L'eau a tout englouti</p>
+    <div class="divider"></div>
+    <p class="message">
+      Tu as manqué de temps.<br>
+      L'eau a continué de monter… monter…<br>
+      jusqu'à tout submerger.<br><br>
+      Le canard, lui, flotte toujours.<br>
+      Il t'attend au fond.
+    </p>
+    <a class="restart-btn" href="index.html" id="restartBtn">↺ Recommencer</a>
+    <p class="timer-info">La partie a expiré · Le chronomètre repart à zéro</p>
+  </div>
+
+  <script>
+    // ── Bulles animées ──
+    const container = document.getElementById('bubbles');
+    for (let i = 0; i < 22; i++) {
+      const b = document.createElement('div');
+      b.className = 'bubble';
+      const size = Math.random() * 28 + 8;
+      b.style.cssText = `
+        width: ${size}px;
+        height: ${size}px;
+        left: ${Math.random() * 100}%;
+        animation-duration: ${Math.random() * 8 + 5}s;
+        animation-delay: ${Math.random() * 8}s;
+        --dx: ${(Math.random() - 0.5) * 80}px;
+      `;
+      container.appendChild(b);
+    }
+
+    // ── Reset du timer au clic "Recommencer" ──
+    document.getElementById('restartBtn').addEventListener('click', () => {
+      localStorage.removeItem('aquago.water.startAt.v2');
+      localStorage.removeItem('aquago.enigmes.done');
+      localStorage.removeItem('aquago.duck.shown');
+    });
+  </script>
+</body>
+</html>

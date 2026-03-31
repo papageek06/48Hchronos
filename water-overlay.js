@@ -78,9 +78,21 @@
       localStorage.setItem(STORAGE_KEY, String(startAt));
     }
 
+    let gameOverTriggered = false;
+
     const draw = (now) => {
       const elapsed = Math.max(0, Date.now() - startAt);
       const t = Math.min(1, elapsed / DURATION_MS);
+
+      // Redirection game over quand le timer est écoulé
+      if (t >= 1 && !gameOverTriggered) {
+        gameOverTriggered = true;
+        // Ne pas rediriger si on est déjà sur gameover.html
+        if (!window.location.pathname.endsWith('gameover.html')) {
+          window.location.href = 'gameover.html';
+          return;
+        }
+      }
 
       ctx.clearRect(0, 0, w, h);
 
