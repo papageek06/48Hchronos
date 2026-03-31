@@ -24,6 +24,42 @@ Le joueur débute sur une page de navigation et doit explorer différentes pages
 	*But :* Trouver les bons mots pour débloquer l'accès aux autres pages et progresser dans l'histoire.
 
 	*Solution :* (à compléter selon les mots utilisés dans le jeu)
+	*Pour accéder aux différentes pages:* 
+	      // lock.html
+      ecluse:      'lock.html',
+      barrage:     'lock.html',
+      noyade:      'lock.html',
+      submerge:    'lock.html',
+      immerge:     'lock.html',
+      profondeur:  'lock.html',
+      abysses:     'lock.html',
+      gouffre:     'lock.html',
+      nappe:       'lock.html',
+      inondation:  'lock.html',
+
+      // sitePlomberie.html
+      plomberie:   'sitePlomberie.html',
+      raccord:     'sitePlomberie.html',
+      joint:       'sitePlomberie.html',
+      robinet:     'sitePlomberie.html',
+      canalisation:'sitePlomberie.html',
+      reparation:  'sitePlomberie.html',
+      plombier:    'sitePlomberie.html',
+      vanne:       'sitePlomberie.html',
+      pression:    'sitePlomberie.html',
+      fuite:       'sitePlomberie.html',
+
+      // tableau.html
+      hydrogene:   'tableau.html',
+      oxygene:     'tableau.html',
+      molecule:    'tableau.html',
+      solution:    'tableau.html',
+      dilution:    'tableau.html',
+      distillee:   'tableau.html',
+      purifier:    'tableau.html',
+      reaction:    'tableau.html',
+      analyse:     'tableau.html',
+      composition: 'tableau.html',
 
 - **Site de plomberie**
   
