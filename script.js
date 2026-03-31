@@ -113,6 +113,11 @@ document.addEventListener('DOMContentLoaded', function () {
         checkoutBtn.addEventListener('click', function(e) {
             e.preventDefault();
             errorMsg.textContent = '';
+            const cart = getCart();
+            if (!cart || cart.length === 0) {
+                errorMsg.textContent = 'Votre panier est vide.';
+                return;
+            }
             const code = prompt('Veuillez entrer le code de validation :');
             if (code === null) return; // Annulé
             if (code === 'Canard2026') {
