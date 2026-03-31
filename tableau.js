@@ -125,6 +125,7 @@ const selectionMeta = document.getElementById("selectionMeta");
 const selectedList = document.getElementById("selectedList");
 const resetButton = document.getElementById("resetSelection");
 const successMessage = document.getElementById("successMessage");
+const game = window.GameState;
 
 const selectedNumbers = [];
 const selectedSet = new Set();
@@ -242,8 +243,12 @@ function completePuzzle() {
     button.disabled = true;
   });
 
+  if (game) {
+    game.completeTrial("tableau");
+  }
+
   window.setTimeout(() => {
-    window.location.href = "index.html";
+    window.location.href = "index.html?completed=tableau";
   }, redirectDelayMs);
 }
 
@@ -251,7 +256,6 @@ function toggleElement(number) {
   if (puzzleSolved) {
     return;
   }
-
   if (selectedSet.has(number)) {
     selectedSet.delete(number);
     const index = selectedNumbers.indexOf(number);
@@ -278,7 +282,6 @@ function resetSelection() {
   if (puzzleSolved) {
     return;
   }
-
   selectedSet.clear();
   selectedNumbers.length = 0;
   updateSelectionDisplay();

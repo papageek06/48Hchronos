@@ -1,0 +1,248 @@
+/* Couleurs de base */
+:root {
+    --blue-dark: #00427c;
+    --blue-light: #00549f;
+    --yellow: #ffcc00;
+    --gray-bg: #f2f2f2;
+    --border: #cccccc;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #fff;
+    color: #333;
+}
+
+.container {
+    width: 95%;
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+/* Header */
+.main-header {
+    background: var(--blue-dark);
+    color: white;
+    padding: 15px 0;
+}
+
+.logo {
+    font-size: 24px;
+    font-weight: bold;
+}
+
+.logo .fr { color: var(--yellow); }
+
+.search-section {
+    flex-grow: 1;
+    margin: 0 30px;
+}
+
+.search-section form {
+    display: flex;
+}
+
+.search-section input {
+    width: 100%;
+    padding: 10px;
+    border: none;
+    font-size: 16px;
+}
+
+.search-section button {
+    padding: 10px 20px;
+    background: var(--yellow);
+    border: none;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+/* Nav */
+.top-nav {
+    background: #333;
+}
+
+.top-nav ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+}
+
+.top-nav li a {
+    color: white;
+    text-decoration: none;
+    padding: 12px 20px;
+    display: block;
+    font-size: 13px;
+    font-weight: bold;
+}
+
+
+.user-menu a {
+    color: #fff;
+    text-decoration: none;
+    margin-left: 15px;
+    font-weight: bold;
+    font-size: 14px;
+    transition: color 0.2s;
+}
+
+.user-menu a:hover {
+    color: var(--yellow);
+}
+
+.top-nav li a:hover {
+    background: var(--blue-light);
+}
+
+/* Layout */
+.main-content {
+    align-items: flex-start;
+    padding-top: 20px;
+}
+
+.sidebar {
+    width: 250px;
+    border: 1px solid var(--border);
+    margin-right: 20px;
+}
+
+.sidebar h3 {
+    background: var(--gray-bg);
+    margin: 0;
+    padding: 10px;
+    font-size: 16px;
+    border-bottom: 1px solid var(--border);
+}
+
+.sidebar ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.sidebar li a {
+    display: block;
+    padding: 10px;
+    text-decoration: none;
+    color: #333;
+    border-bottom: 1px dotted var(--border);
+    font-size: 14px;
+}
+
+.sidebar li a:hover {
+    background-color: #f9f9f9;
+    color: var(--blue-light);
+}
+
+/* Hero Banner avec l'image demandée */
+.content { flex-grow: 1; }
+
+.hero-banner {
+    background: var(--blue-light);
+    color: white;
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.banner-img {
+    width: 200px;
+    height: auto;
+    background-color: var(--blue-light);
+}
+
+.banner-text { padding: 20px; }
+
+/* Résultats API */
+.products-grid {
+    min-height: 400px;
+    border: 2px dashed var(--border);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #999;
+}
+
+footer {
+    margin-top: 50px;
+    background: var(--gray-bg);
+    padding: 20px 0;
+    text-align: center;
+    border-top: 1px solid var(--border);
+    font-size: 12px;
+}
+
+
+/* --- Grille de Produits --- */
+.products-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 20px;
+    padding: 20px;
+    border: none; /* On enlève les pointillés moches */
+    color: inherit;
+}
+
+/* --- Carte Produit --- */
+.product-card {
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 15px;
+    text-align: center;
+    transition: transform 0.2s, box-shadow 0.2s;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.product-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    border-color: var(--blue-light);
+}
+
+.product-img {
+    margin: 0 auto 15px;
+    max-height: 120px;
+    object-fit: contain;
+}
+
+.product-card h4 {
+    font-size: 14px;
+    margin: 10px 0;
+    color: var(--blue-dark);
+    height: 40px; /* Aligne les titres sur deux lignes */
+    overflow: hidden;
+}
+
+.product-card .price {
+    font-size: 18px;
+    font-weight: bold;
+    color: #d32f2f; /* Rouge pour le prix */
+    margin-bottom: 15px;
+}
+
+/* --- Bouton Ajouter --- */
+.add-to-cart {
+    background: var(--yellow);
+    color: #333;
+    border: none;
+    padding: 10px;
+    font-weight: bold;
+    border-radius: 3px;
+    cursor: pointer;
+    font-size: 12px;
+    text-transform: uppercase;
+}
+
+.add-to-cart:hover {
+    background: #e6b800;
+}

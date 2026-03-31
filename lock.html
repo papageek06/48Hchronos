@@ -1,27 +1,27 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Cadenas — L'Énigme des Ombres</title>
+  <title>Cadenas â€” L'Ã‰nigme des Ombres</title>
   <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700&family=Crimson+Pro:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
   <style>
     :root {
-      --ink: #034e7b;
-      --parch: #fdfcf9;
-      --parch2: #f7f0dc;
-      --gold: #0b78d1;
-      --gold2: #0b78d1;
+      --ink: #1a1008;
+      --parch: #f5ead0;
+      --parch2: #ede0bc;
+      --gold: #c8963e;
+      --gold2: #a0721e;
       --shadow: rgba(26,16,8,0.18);
       --red: #b03030;
       --green: #2d7a4a;
-    }q
+    }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
       font-family: 'Crimson Pro', Georgia, serif;
-      background: #8abfeb93;
+      background: #1a1008;
       min-height: 100vh;
       display: flex;
       align-items: center;
@@ -114,11 +114,11 @@
     .lock-svg {
       width: 100px;
       height: 116px;
-      /* filter: drop-shadow(0 4px 12px rgba(0,0,0,0.25)); */
+      filter: drop-shadow(0 4px 12px rgba(0,0,0,0.25));
       transition: filter 0.4s, transform 0.5s;
     }
     .lock-svg.open {
-      /* filter: drop-shadow(0 0 20px rgba(45,122,74,0.9)); */
+      filter: drop-shadow(0 0 20px rgba(45,122,74,0.9));
       transform: rotate(-6deg) scale(1.1);
     }
     .lock-svg.shake { animation: shk 0.35s ease; }
@@ -140,7 +140,7 @@
       position: relative;
     }
     .enigma-scroll::before {
-      content: '❧';
+      content: 'â§';
       position: absolute;
       top: -10px; left: 50%;
       transform: translateX(-50%);
@@ -364,16 +364,32 @@
 
     /* Confetti */
     #confetti { position: fixed; inset: 0; pointer-events: none; z-index: 100; }
+
+    .back-search {
+      position: fixed;
+      top: 14px;
+      left: 14px;
+      z-index: 5;
+      text-decoration: none;
+      color: #f7e3b6;
+      border: 1px solid rgba(200,150,62,0.45);
+      border-radius: 999px;
+      padding: 8px 12px;
+      background: rgba(26,16,8,0.7);
+      font-size: 0.9rem;
+      letter-spacing: 0.03em;
+    }
   </style>
 </head>
 <body>
 
 <canvas id="confetti"></canvas>
 <div class="dust" id="dust"></div>
+<a class="back-search" href="index.html">â† Moteur de recherche</a>
 
 <div class="scroll">
   <div class="title-wrap">
-    <h1>L'Énigme</h1>
+    <h1>ðŸ” L'Ã‰nigme des Ombres</h1>
     <div class="title-divider"></div>
   </div>
 
@@ -382,14 +398,14 @@
     <svg id="lockSvg" class="lock-svg" viewBox="0 0 100 116" fill="none" xmlns="http://www.w3.org/2000/svg">
       <g id="shackle">
         <path d="M28 55 L28 32 Q28 8 50 8 Q72 8 72 32 L72 55"
-              stroke="#0b78d1" stroke-width="9" stroke-linecap="round" fill="none"/>
+              stroke="#c8963e" stroke-width="9" stroke-linecap="round" fill="none"/>
       </g>
-      <rect x="10" y="50" width="80" height="60" rx="12" fill="#2a1f0a" stroke="#0b78d1" stroke-width="2.5"/>
+      <rect x="10" y="50" width="80" height="60" rx="12" fill="#2a1f0a" stroke="#c8963e" stroke-width="2.5"/>
       <rect x="16" y="56" width="68" height="48" rx="8" fill="url(#lg)"/>
-      <circle cx="50" cy="76" r="10" fill="#0b78d1" stroke="#0b78d1" stroke-width="1.5"/>
+      <circle cx="50" cy="76" r="10" fill="#1a1008" stroke="#c8963e" stroke-width="1.5"/>
       <rect x="46" y="76" width="8" height="13" rx="2.5" fill="#1a1008"/>
-      <circle cx="22" cy="63" r="3.5" fill="#362a14" stroke="#0b78d1" stroke-width="1"/>
-      <circle cx="78" cy="63" r="3.5" fill="#362a14" stroke="#0b78d1" stroke-width="1"/>
+      <circle cx="22" cy="63" r="3.5" fill="#362a14" stroke="#c8963e" stroke-width="1"/>
+      <circle cx="78" cy="63" r="3.5" fill="#362a14" stroke="#c8963e" stroke-width="1"/>
       <rect x="18" y="58" width="24" height="5" rx="2.5" fill="rgba(255,255,255,0.05)"/>
       <defs>
         <linearGradient id="lg" x1="16" y1="56" x2="84" y2="104" gradientUnits="userSpaceOnUse">
@@ -403,17 +419,17 @@
   <!-- Enigma -->
   <div class="enigma-scroll">
     <p class="enigma-text">
-      Je suis une suite de nombres cachée dans l'ombre…<br>
-      Mon dernier est le mois qui ouvre le cœur de l'été.<br>
+      Je suis une suite de nombres cachÃ©e dans l'ombreâ€¦<br>
+      Mon dernier est le mois qui ouvre le cÅ“ur de l'Ã©tÃ©.<br>
       Mon premier en est le double.<br>
-      Le second dépasse le premier d'une unité.<br>
-      Le troisième naît de la différence entre le second et le premier.<br>
-      Le quatrième résulte de la somme du précédent et du dernier.
+      Le second dÃ©passe le premier d'une unitÃ©.<br>
+      Le troisiÃ¨me naÃ®t de la diffÃ©rence entre le second et le premier.<br>
+      Le quatriÃ¨me rÃ©sulte de la somme du prÃ©cÃ©dent et du dernier.
     </p>
   </div>
 
   <!-- Slots -->
-  <div class="slots-label">↓ Entre la suite ↓</div>
+  <div class="slots-label">â†“ Entre la suite â†“</div>
   <div class="slots-wrap" id="slotsWrap">
     <!-- 4 numbers separated by dashes, each up to 2 digits -->
   </div>
@@ -429,38 +445,47 @@
     <button class="key" onclick="press('7')">7</button>
     <button class="key" onclick="press('8')">8</button>
     <button class="key" onclick="press('9')">9</button>
-    <button class="key del" onclick="press('del')">⌫</button>
+    <button class="key del" onclick="press('del')">âŒ«</button>
     <button class="key" onclick="press('0')">0</button>
-    <button class="key" onclick="press('next')">→</button>
-    <button class="key ok" onclick="validate()">Ouvrir le cadenas</button>
+    <button class="key" onclick="press('next')">â†’</button>
+    <button class="key ok" onclick="validate()">âœ¦ Ouvrir le cadenas âœ¦</button>
   </div>
 
   <div class="feedback" id="feedback"></div>
 
-  <!-- Save section (shown after success)
+  <!-- Save section (shown after success) -->
   <div class="save-section" id="saveSection">
-    <div class="save-label">Enregistre ta réussite</div>
+    <div class="save-label">ðŸ“œ Enregistre ta rÃ©ussite</div>
     <div class="save-row">
-      <input class="save-input" id="nameInput" type="text" placeholder="Ton prénom ou surnom…" maxlength="30"/>
-      <button class="save-btn" onclick="saveResult()">Sauvegarder</button>
+      <input class="save-input" id="nameInput" type="text" placeholder="Ton prÃ©nom ou surnomâ€¦" maxlength="30"/>
+      <button class="save-btn" onclick="saveResult()">ðŸ’¾ Sauvegarder</button>
     </div>
     <div class="save-confirm" id="saveConfirm"></div>
-  </div> -->
+  </div>
 
   <!-- Saved list -->
-  <!-- <div class="saved-wrap" id="savedWrap">
-    <div class="saved-title">Tableau des Érudits</div>
+  <div class="saved-wrap" id="savedWrap">
+    <div class="saved-title">ðŸ“– Tableau des Ã‰rudits</div>
     <div class="saved-list" id="savedList"></div>
-  </div> -->
+  </div>
 </div>
 
+<script src="game-state.js"></script>
+<script src="water-overlay.js"></script>
 <script>
-// ─── Enigma answer: 14 - 15 - 1 - 8 ───
+const game = window.GameState;
+if (game) {
+  game.requireStartedOrRedirect();
+  game.redirectIfGameOver();
+  setInterval(() => game.redirectIfGameOver(), 1000);
+}
+
+// â”€â”€â”€ Enigma answer: 14 - 15 - 1 - 8 â”€â”€â”€
 // Juillet = 7 (dernier)
-// premier = 7×2 = 14
+// premier = 7Ã—2 = 14
 // second = 14+1 = 15
-// troisième = 15-14 = 1
-// quatrième = 1+7 = 8
+// troisiÃ¨me = 15-14 = 1
+// quatriÃ¨me = 1+7 = 8
 
 const ANSWER = [14, 15, 1, 8, 7];
 const DIGITS  = [2,  2, 1, 1, 1]; // max digits per slot
@@ -469,7 +494,7 @@ let entries = ['', '', '', '', ''];  // current input per slot
 let active  = 0;                 // which slot is focused
 let solved  = false;
 
-// ─── Build slots ───
+// â”€â”€â”€ Build slots â”€â”€â”€
 function buildSlots() {
   const wrap = document.getElementById('slotsWrap');
   wrap.innerHTML = '';
@@ -482,7 +507,7 @@ function buildSlots() {
     if (i < ANSWER.length - 1) {
       const sep = document.createElement('div');
       sep.className = 'slot-sep';
-      sep.textContent = '–';
+      sep.textContent = 'â€“';
       wrap.appendChild(sep);
     }
   });
@@ -499,7 +524,7 @@ function renderSlots() {
   });
 }
 
-// ─── Key press ───
+// â”€â”€â”€ Key press â”€â”€â”€
 function press(k) {
   if (solved) return;
   if (k === 'del') {
@@ -524,7 +549,7 @@ function press(k) {
   renderSlots();
 }
 
-// ─── Validate ───
+// â”€â”€â”€ Validate â”€â”€â”€
 function validate() {
   if (solved) return;
   const all = entries.every(e => e !== '');
@@ -537,15 +562,21 @@ function validate() {
     solved = true;
     openLock();
     markSlots('correct');
-    showFeedback('Admirable ! Le cadenas s\'ouvre… Notez bien ce code, il vous servira plus tard.', 'ok');
+    showFeedback('Admirable ! Le cadenas s\'ouvreâ€¦ Notez bien ce code, il vous servira plus tard.', 'ok');
     document.getElementById('keypad').style.display = 'none';
     document.getElementById('saveSection').style.display = 'flex';
     launchConfetti(80);
     loadSaved();
+    if (game) {
+      game.completeTrial('lock');
+      setTimeout(() => {
+        window.location.href = 'index.html?completed=lock';
+      }, 1200);
+    }
   } else {
     shakeLock();
     markSlots('wrong');
-    showFeedback('Ce code ne correspond pas… Réfléchis encore.', 'err');
+    showFeedback('Ce code ne correspond pasâ€¦ RÃ©flÃ©chis encore.', 'err');
     setTimeout(() => {
       entries = ['', '', '', '', ''];
       active  = 0;
@@ -564,7 +595,7 @@ function markSlots(cls) {
   });
 }
 
-// ─── Lock anim ───
+// â”€â”€â”€ Lock anim â”€â”€â”€
 function openLock() {
   const svg = document.getElementById('lockSvg');
   svg.classList.add('open');
@@ -585,16 +616,16 @@ function showFeedback(msg, type) {
   fb.className    = 'feedback ' + type;
 }
 
-// ─── Save / Load ───
+// â”€â”€â”€ Save / Load â”€â”€â”€
 const STORAGE_KEY = 'cadenas_enigme_saves';
 
 function saveResult() {
   const name = document.getElementById('nameInput').value.trim();
-  if (!name) { document.getElementById('saveConfirm').textContent = 'Entre ton prénom d\'abord !'; return; }
+  if (!name) { document.getElementById('saveConfirm').textContent = 'Entre ton prÃ©nom d\'abord !'; return; }
   const saves = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
   saves.unshift({ name, date: new Date().toLocaleDateString('fr-FR', { day:'numeric', month:'long', year:'numeric' }) });
   localStorage.setItem(STORAGE_KEY, JSON.stringify(saves));
-  document.getElementById('saveConfirm').textContent = `✔ ${name} inscrit(e) dans le Livre des Érudits !`;
+  document.getElementById('saveConfirm').textContent = `âœ” ${name} inscrit(e) dans le Livre des Ã‰rudits !`;
   document.getElementById('nameInput').value = '';
   loadSaved();
 }
@@ -607,9 +638,9 @@ function loadSaved() {
   wrap.style.display = 'block';
   list.innerHTML = saves.map((s, i) => `
     <div class="saved-item">
-      <span class="s-name">🏅 ${s.name}</span>
+      <span class="s-name">ðŸ… ${s.name}</span>
       <span class="s-date">${s.date}</span>
-      <button class="s-del" onclick="deleteSave(${i})" title="Supprimer">✕</button>
+      <button class="s-del" onclick="deleteSave(${i})" title="Supprimer">âœ•</button>
     </div>
   `).join('');
 }
@@ -621,7 +652,7 @@ function deleteSave(idx) {
   loadSaved();
 }
 
-// ─── Confetti ───
+// â”€â”€â”€ Confetti â”€â”€â”€
 const canvas = document.getElementById('confetti');
 const ctx    = canvas.getContext('2d');
 let particles = [];
@@ -659,7 +690,7 @@ function drawConfetti() {
   else ctx.clearRect(0, 0, canvas.width, canvas.height);
 }
 
-// ─── Dust motes ───
+// â”€â”€â”€ Dust motes â”€â”€â”€
 (function spawnDust() {
   const c = document.getElementById('dust');
   for (let i = 0; i < 18; i++) {
@@ -678,7 +709,7 @@ function drawConfetti() {
   }
 })();
 
-// ─── Keyboard ───
+// â”€â”€â”€ Keyboard â”€â”€â”€
 document.addEventListener('keydown', e => {
   if (e.key >= '0' && e.key <= '9') press(e.key);
   else if (e.key === 'Backspace')    press('del');
@@ -687,10 +718,11 @@ document.addEventListener('keydown', e => {
   else if (e.key === 'ArrowLeft' && active > 0) { active--; renderSlots(); }
 });
 
-// ─── Init ───
+// â”€â”€â”€ Init â”€â”€â”€
 buildSlots();
 renderSlots();
 loadSaved();
 </script>
 </body>
 </html>
+

@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Mon Panier - Plomberie.com</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        /* Styles spécifiques à la page panier pour garder le style "brut" */
+        .cart-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        .cart-table th {
+            background-color: var(--gray-bg);
+            border: 1px solid var(--border);
+            padding: 12px;
+            text-align: left;
+            font-size: 14px;
+        }
+        .cart-table td {
+            border: 1px solid var(--border);
+            padding: 15px;
+            vertical-align: middle;
+        }
+        .product-info {
+            display: flex;
+            align-items: center;
+        }
+        .product-info img {
+            width: 60px;
+            height: 60px;
+            margin-right: 15px;
+            border: 1px solid #eee;
+        }
+        .qty-input {
+            width: 50px;
+            padding: 5px;
+            text-align: center;
+        }
+        .price-bold {
+            font-weight: bold;
+            color: var(--blue-dark);
+        }
+        .cart-summary {
+            margin-top: 30px;
+            float: right;
+            width: 300px;
+            border: 2px solid var(--blue-dark);
+            padding: 20px;
+            background: #fff;
+        }
+        .summary-line {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+        .total-line {
+            border-top: 2px solid var(--blue-dark);
+            padding-top: 10px;
+            font-weight: bold;
+            font-size: 20px;
+            color: #CC0000;
+        }
+        .btn-checkout {
+            display: block;
+            width: 100%;
+            background-color: var(--yellow);
+            color: #000;
+            text-align: center;
+            padding: 15px 0;
+            text-decoration: none;
+            font-weight: bold;
+            margin-top: 15px;
+            border: none;
+            cursor: pointer;
+            text-transform: uppercase;
+        }
+        .btn-checkout:hover {
+            background-color: #e6b800;
+        }
+        .continue-shopping {
+            display: inline-block;
+            margin-top: 20px;
+            color: var(--blue-light);
+            text-decoration: underline;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+
+    <header class="main-header">
+        <div class="container">
+            <div class="logo">
+                <span class="plomb">PLOMBERIE</span><span class="fr">.COM</span>
+            </div>
+            <div class="user-menu">
+                <a href="sitePlomberie.html">Retour à la boutique</a>
+            </div>
+        </div>
+    </header>
+
+    <main class="container" style="display: block; padding: 40px 0;">
+        <h1>VOTRE PANIER</h1>
+
+        <table class="cart-table">
+            <thead>
+                <tr>
+                    <th>PRODUIT</th>
+                    <th>PRIX UNITAIRE</th>
+                    <th>QUANTITÉ</th>
+                    <th>TOTAL HT</th>
+                    <th>ACTION</th>
+                </tr>
+            </thead>
+            <tbody id="cart-items">
+                <!-- Les produits du panier seront injectés ici par JS -->
+            </tbody>
+        </table>
+
+        <div class="cart-summary">
+            <div class="summary-line">
+                <span>Total HT</span>
+                <span>9,00 €</span>
+            </div>
+            <div class="summary-line">
+                <span>TVA (20%)</span>
+                <span>1,80 €</span>
+            </div>
+            <div class="summary-line total-line">
+                <span>TOTAL TTC</span>
+                <span>10,80 €</span>
+            </div>
+            <button class="btn-checkout">Valider ma commande</button>
+        </div>
+        
+        <div style="clear: both;"></div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2026 Plomberie.com - Paiement sécurisé par CB / Virement</p>
+        </div>
+    </footer>
+
+    <script src="game-state.js"></script>
+    <script>
+      (() => {
+        const game = window.GameState;
+        if (!game) return;
+        game.requireStartedOrRedirect();
+        game.redirectIfGameOver();
+        setInterval(() => game.redirectIfGameOver(), 1000);
+      })();
+    </script>
+    <script src="water-overlay.js"></script>
+    <script src="script.js"></script>
+
+</body>
+</html>

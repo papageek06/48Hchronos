@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Plomberie.com - Matériel de plomberie pro</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <header class="main-header">
+        <div class="container">
+            <div class="logo">
+                <span class="plomb">PLOMBERIE</span><span class="fr">.COM</span>
+            </div>
+            
+            <div class="search-section">
+                <form id="search-form">
+                    <input type="text" placeholder="Rechercher un raccord, un tube, un outil..." id="api-query">
+                    <button type="submit">RECHERCHER</button>
+                </form>
+            </div>
+
+            <div class="user-menu">
+                <a href="#">Mon Compte</a>
+                <a href="panier.html" class="cart">Panier (0)</a>
+            </div>
+        </div>
+    </header>
+
+    <nav class="top-nav">
+        <div class="container">
+            <ul>
+                <li><a href="#">NOS PRODUITS</a></li>
+                <li><a href="#">MARQUES</a></li>
+                <li><a href="#">DÉSTOCKAGE</a></li>
+                <li><a href="#">AIDE & CONSEILS</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <main class="container main-content">
+        <aside class="sidebar">
+            <h3>CATÉGORIES</h3>
+            <ul>
+                <li><a href="#">Raccords Plomberie</a></li>
+                <li><a href="#">Tubes & Tuyaux</a></li>
+                <li><a href="#">Sanitaire & Bain</a></li>
+                <li><a href="#">Chauffage</a></li>
+                <li><a href="#">Outillage</a></li>
+                <li><a href="#">Fixation</a></li>
+            </ul>
+        </aside>
+
+        <section class="content">
+            <div class="hero-banner">
+                <img src="image/plombier2.jpg" alt="Expert Plomberie" class="banner-img">
+                <div class="banner-text">
+                    <h2>VOTRE MATÉRIEL DE PRO EN 24H</h2>
+                    <p>Plus de 15 000 références en stock.</p>
+                </div>
+            </div>
+
+            <div class="products-grid" id="api-results">
+                <div class="placeholder-msg">
+                    Chargement des produits en cours...
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2024 Plomberie.com - Le spécialiste du raccordement</p>
+        </div>
+    </footer>
+
+    <script src="game-state.js"></script>
+    <script>
+      (() => {
+        const game = window.GameState;
+        if (!game) return;
+        game.requireStartedOrRedirect();
+        game.redirectIfGameOver();
+        setInterval(() => game.redirectIfGameOver(), 1000);
+      })();
+    </script>
+    <script src="water-overlay.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>

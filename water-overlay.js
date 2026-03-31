@@ -1,9 +1,20 @@
 (() => {
   const DURATION_MS = 12 * 60_000;
+  const GAME_KEY = "aquago.game.state.v1";
   const STORAGE_KEY = "aquago.water.startAt.v2";
   const CANVAS_ID = "global-water-overlay";
 
   const init = () => {
+    let gameStartedAt = null;
+    try {
+      const rawGame = localStorage.getItem(GAME_KEY);
+      const parsedGame = rawGame ? JSON.parse(rawGame) : null;
+      gameStartedAt = Number(parsedGame?.startedAt);
+    } catch (_) {
+      gameStartedAt = null;
+    }
+    if (!Number.isFinite(gameStartedAt) || gameStartedAt <= 0) return;
+
     if (document.getElementById(CANVAS_ID)) return;
 
     const canvas = document.createElement("canvas");
@@ -74,7 +85,7 @@
 
     let startAt = Number(localStorage.getItem(STORAGE_KEY));
     if (!Number.isFinite(startAt) || startAt <= 0) {
-      startAt = Date.now();
+      startAt = gameStartedAt;
       localStorage.setItem(STORAGE_KEY, String(startAt));
     }
 

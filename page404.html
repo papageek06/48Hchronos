@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>404 - Plomberie.fr</title>
+    <style>
+        body {
+            background-color: #FFFFFF;
+            color: #333333;
+            font-family: Arial, Helvetica, sans-serif;
+            margin: 0;
+            padding: 50px 20px;
+            text-align: center;
+        }
+        .image-container {
+            display: inline-block;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+        .image-container img {
+            display: block;
+            width: 300px; 
+            height: auto;
+        }
+        h1 {
+            font-size: 80px;
+            margin: 10px 0;
+            color: #CC0000; 
+        }
+        .message {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 30px;
+        }
+        .retour {
+            display: inline-block;
+            background-color: #EEEEEE;
+            border: 1px solid #999999;
+            padding: 10px 20px;
+            color: #000000;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        .retour:hover {
+            background-color: #DDDDDD;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="image-container">
+        <img src="image/plombier.avif" alt="Plombier">
+    </div>
+
+    <h1>404</h1>
+    
+    <div class="message">
+        CETTE PAGE N'EXISTE PAS OU A ÉTÉ DÉPLACÉE.
+    </div>
+
+    <p>Il y a sûrement un problème dans la tuyauterie du site.</p>
+
+    <br>
+
+    <a href="sitePlomberie.html" class="retour">RETOUR À L'ACCUEIL DU SITE</a>
+
+    <p style="color: #ffffff;">Canard2026</p>
+    <script src="game-state.js"></script>
+    <script>
+      (() => {
+        const game = window.GameState;
+        if (!game) return;
+        game.requireStartedOrRedirect();
+        game.redirectIfGameOver();
+        setInterval(() => game.redirectIfGameOver(), 1000);
+      })();
+    </script>
+    <script src="water-overlay.js"></script>
+</body>
+</html>
