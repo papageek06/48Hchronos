@@ -46,6 +46,11 @@ select {
   overflow: hidden;
 }
 
+.content {
+  position: relative;
+  z-index: 2;
+}
+
 .background-shape {
   position: absolute;
   border-radius: 999px;

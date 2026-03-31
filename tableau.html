@@ -5,33 +5,36 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>AquaGo - Tableau periodique</title>
   <link rel="stylesheet" href="tableau.css" />
+  <script src="./water-overlay.js" defer></script>
 </head>
 <body>
   <main class="page">
     <div class="background-shape background-shape-left" aria-hidden="true"></div>
     <div class="background-shape background-shape-right" aria-hidden="true"></div>
 
-    <section class="selection-panel" aria-labelledby="selection-title">
-      <div class="selection-header">
-        <div>
-          <h2 id="selection-title">Selection actuelle</h2>
+    <div class="content">
+      <section class="selection-panel" aria-labelledby="selection-title">
+        <div class="selection-header">
+          <div>
+            <h2 id="selection-title">Selection actuelle</h2>
+          </div>
+          <button id="resetSelection" class="reset-button" type="button">Reinitialiser</button>
         </div>
-        <button id="resetSelection" class="reset-button" type="button">Reinitialiser</button>
-      </div>
 
-      <div id="assembledWord" class="assembled-word" aria-live="polite">...</div>
-      <p id="selectionMeta" class="selection-meta">Aucun element selectionne.</p>
+        <div id="assembledWord" class="assembled-word" aria-live="polite">...</div>
+        <p id="selectionMeta" class="selection-meta">Aucun element selectionne.</p>
 
-      <div id="selectedList" class="selected-list" aria-live="polite">
-        <span class="empty-selection">Les symboles choisis s'afficheront ici.</span>
-      </div>
-    </section>
+        <div id="selectedList" class="selected-list" aria-live="polite">
+          <span class="empty-selection">Les symboles choisis s'afficheront ici.</span>
+        </div>
+      </section>
 
-    <section class="table-shell">
-      <div class="table-scroll" aria-label="Zone scrollable du tableau periodique">
-        <div id="periodicTable" class="periodic-table" role="grid" aria-label="Tableau periodique des elements"></div>
-      </div>
-    </section>
+      <section class="table-shell">
+        <div class="table-scroll" aria-label="Zone scrollable du tableau periodique">
+          <div id="periodicTable" class="periodic-table" role="grid" aria-label="Tableau periodique des elements"></div>
+        </div>
+      </section>
+    </div>
 
     <div id="successMessage" class="success-message" hidden aria-live="assertive">
       <div class="success-card">
