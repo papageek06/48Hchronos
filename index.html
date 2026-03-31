@@ -271,6 +271,21 @@
       color: #14527d;
     }
 
+    .hud-restart-btn {
+      border: none;
+      border-radius: 999px;
+      background: #183a59;
+      color: #fff;
+      padding: 8px 14px;
+      font-size: 0.92rem;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    .hud-restart-btn:hover {
+      filter: brightness(1.08);
+    }
+
     .overlay {
       position: absolute;
       inset: 0;
@@ -342,6 +357,7 @@
       <div class="hud-row">
         <div id="timerChip" class="hud-chip">Temps: 12:00</div>
         <div id="progressChip" class="hud-chip">Epreuves: 0/3</div>
+        <button id="fullRestartBtn" class="hud-restart-btn" type="button">Redemarrer l'epreuve complete</button>
       </div>
 
       <div class="search-card">
@@ -396,6 +412,7 @@
       const messageBox = document.getElementById("message");
       const timerChip = document.getElementById("timerChip");
       const progressChip = document.getElementById("progressChip");
+      const fullRestartBtn = document.getElementById("fullRestartBtn");
       const introOverlay = document.getElementById("introOverlay");
       const gameOverOverlay = document.getElementById("gameOverOverlay");
       const combatEndLayer = document.getElementById("combatEndLayer");
@@ -664,6 +681,7 @@
 
       resetBtn.addEventListener("click", resetFlow);
       restartBtn.addEventListener("click", resetFlow);
+      fullRestartBtn.addEventListener("click", resetFlow);
       searchButton.addEventListener("click", handleSearch);
       searchInput.addEventListener("keydown", (event) => {
         if (event.key === "Enter") handleSearch();

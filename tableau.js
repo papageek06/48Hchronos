@@ -243,13 +243,12 @@ function completePuzzle() {
     button.disabled = true;
   });
 
-  if (game) {
-    game.completeTrial("tableau");
-  }
+  const trialResult = game ? game.completeTrial("tableau") : null;
+  const isLastTrial = Boolean(trialResult && trialResult.count >= 3);
 
   window.setTimeout(() => {
     window.location.href = "index.html?completed=tableau";
-  }, redirectDelayMs);
+  }, isLastTrial ? 120 : redirectDelayMs);
 }
 
 function toggleElement(number) {

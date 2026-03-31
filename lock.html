@@ -568,10 +568,11 @@ function validate() {
     launchConfetti(80);
     loadSaved();
     if (game) {
-      game.completeTrial('lock');
+      const trialResult = game.completeTrial('lock');
+      const isLastTrial = Boolean(trialResult && trialResult.count >= 3);
       setTimeout(() => {
         window.location.href = 'index.html?completed=lock';
-      }, 1200);
+      }, isLastTrial ? 120 : 1200);
     }
   } else {
     shakeLock();
