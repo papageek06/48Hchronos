@@ -15,7 +15,6 @@ Ce projet a été réalisé dans le cadre d'un challenge de 48h. L'objectif éta
 ## Explication du jeu
 Le joueur débute sur une page de navigation et doit explorer différentes pages pour trouver les outils qui vont lui permettre d'ajuster l'évier. Pour progresser, il doit résoudre des énigmes. Une vague d'eau monte progressivement sur la page, faisant office de chronomètre. Le joueur doit atteindre la page du combat final à temps, sinon il se noie. Le canard, d'abord amical, devient de plus en plus hostile au fil de l'aventure, craignant de perdre son habitat aquatique.
 
-## Réponses / Codes
 
 - **Page de navigation**
   
