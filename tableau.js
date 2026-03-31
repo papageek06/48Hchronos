@@ -237,6 +237,11 @@ function completePuzzle() {
   successMessage.hidden = false;
   selectionMeta.textContent = "SIPHON trouve. Redirection en cours...";
   resetButton.disabled = true;
+  // Marquer l'énigme "tableau" comme terminée
+  try {
+    const done = JSON.parse(localStorage.getItem('aquago.enigmes.done') || '[]');
+    if (!done.includes('tableau')) { done.push('tableau'); localStorage.setItem('aquago.enigmes.done', JSON.stringify(done)); }
+  } catch(e) {}
 
   buttonMap.forEach((button) => {
     button.disabled = true;

@@ -121,7 +121,12 @@ document.addEventListener('DOMContentLoaded', function () {
             const code = prompt('Veuillez entrer le code de validation :');
             if (code === null) return; // Annulé
             if (code === 'Canard2026') {
-                window.location.href = 'sitePlomberie.html';
+                // Marquer l'énigme "sitePlomberie" comme terminée
+                try {
+                    const done = JSON.parse(localStorage.getItem('aquago.enigmes.done') || '[]');
+                    if (!done.includes('sitePlomberie')) { done.push('sitePlomberie'); localStorage.setItem('aquago.enigmes.done', JSON.stringify(done)); }
+                } catch(e) {}
+                window.location.href = 'index.html';
             } else {
                 errorMsg.textContent = 'Code faux';
             }

@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Cadenas — L'Énigme des Ombres</title>
+  <title>L'énigme</title>
   <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700&family=Crimson+Pro:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
   <style>
     :root {
@@ -405,12 +405,14 @@
   <!-- Enigma -->
   <div class="enigma-scroll">
     <p class="enigma-text">
-      Je suis une suite de nombres cachée dans l'ombre…<br>
-      Mon dernier est le mois qui ouvre le cœur de l'été.<br>
-      Mon premier en est le double.<br>
-      Le second dépasse le premier d'une unité.<br>
+      Mon premier est le double de mon dernier.<br>
+      Le second dépasse le premier d’une unité.<br>
       Le troisième naît de la différence entre le second et le premier.<br>
-      Le quatrième résulte de la somme du précédent et du dernier.
+      Le quatrième résulte de la somme du précédent et du dernier.<br>
+      Mon dernier est le mois qui ouvre l’été.
+      <br>
+      <br>
+      Sauras-tu me reconstituer ?
     </p>
   </div>
 
@@ -541,9 +543,16 @@ function validate() {
     markSlots('correct');
     showFeedback('Admirable ! Le cadenas s\'ouvre… Notez bien ce code, il vous servira plus tard.', 'ok');
     document.getElementById('keypad').style.display = 'none';
-    document.getElementById('saveSection').style.display = 'flex';
+    const saveSection = document.getElementById('saveSection');
+    if (saveSection) saveSection.style.display = 'flex';
     launchConfetti(80);
     loadSaved();
+    // Marquer l'énigme "lock" comme terminée puis retour accueil
+    try {
+      const done = JSON.parse(localStorage.getItem('aquago.enigmes.done') || '[]');
+      if (!done.includes('lock')) { done.push('lock'); localStorage.setItem('aquago.enigmes.done', JSON.stringify(done)); }
+    } catch(e) {}
+    setTimeout(() => { window.location.href = 'index.html'; }, 3000);
   } else {
     shakeLock();
     markSlots('wrong');
@@ -605,6 +614,7 @@ function loadSaved() {
   const saves = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
   const wrap  = document.getElementById('savedWrap');
   const list  = document.getElementById('savedList');
+  if (!wrap || !list) return;
   if (saves.length === 0) { wrap.style.display = 'none'; return; }
   wrap.style.display = 'block';
   list.innerHTML = saves.map((s, i) => `

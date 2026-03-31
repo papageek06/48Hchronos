@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="fr">
 <head>
   <meta charset="UTF-8" />
@@ -175,10 +175,205 @@
       color: var(--danger);
       margin-top: 18px;
     }
+
+    /* ── Pop-up intro ── */
+    #intro-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(2, 30, 60, 0.72);
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+      padding: 20px;
+      animation: fadeInOverlay 0.5s ease both;
+    }
+    @keyframes fadeInOverlay {
+      from { opacity: 0; }
+      to   { opacity: 1; }
+    }
+    #intro-overlay.hidden { display: none; }
+
+    .intro-card {
+      background: rgba(255, 255, 255, 0.97);
+      border-radius: 28px;
+      box-shadow: 0 30px 80px rgba(2, 65, 102, 0.30);
+      padding: clamp(28px, 5vw, 56px) clamp(24px, 5vw, 52px);
+      max-width: 680px;
+      width: 100%;
+      text-align: center;
+      animation: slideUp 0.55s cubic-bezier(0.22,1,0.36,1) both;
+    }
+    @keyframes slideUp {
+      from { transform: translateY(32px); opacity: 0; }
+      to   { transform: none; opacity: 1; }
+    }
+    .intro-logo {
+      font-size: 2.2rem;
+      font-weight: 900;
+      letter-spacing: -0.05em;
+      color: #07689f;
+      margin-bottom: 6px;
+    }
+    .intro-logo span { color: #0b78d1; }
+    .intro-divider {
+      width: 60px;
+      height: 3px;
+      background: linear-gradient(90deg, #0b78d1, #5fb8ff);
+      border-radius: 99px;
+      margin: 10px auto 20px;
+    }
+    .intro-story {
+      font-size: 1.05rem;
+      line-height: 1.75;
+      color: #1a3a5c;
+      text-align: left;
+      margin-bottom: 28px;
+    }
+    .intro-start {
+      display: inline-block;
+      background: #0b78d1;
+      color: white;
+      border: none;
+      border-radius: 999px;
+      padding: 16px 40px;
+      font-size: 1.05rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.18s ease, filter 0.18s ease;
+      letter-spacing: 0.03em;
+    }
+    .intro-start:hover {
+      transform: translateY(-2px);
+      filter: brightness(1.08);
+    }
+
+    /* ── Pop-up canard attaque ── */
+    #duck-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(2, 10, 30, 0.82);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      padding: 20px;
+      animation: fadeInOverlay 0.6s ease both;
+    }
+    #duck-overlay.hidden { display: none; }
+
+    .duck-card {
+      background: rgba(255, 255, 255, 0.97);
+      border-radius: 28px;
+      box-shadow: 0 30px 80px rgba(2, 65, 102, 0.35);
+      padding: clamp(28px, 5vw, 52px) clamp(24px, 5vw, 48px);
+      max-width: 620px;
+      width: 100%;
+      text-align: center;
+      animation: slideUp 0.6s cubic-bezier(0.22,1,0.36,1) both;
+    }
+    .duck-emoji {
+      font-size: 4rem;
+      display: block;
+      margin-bottom: 12px;
+      animation: duckBounce 0.6s ease infinite alternate;
+    }
+    @keyframes duckBounce {
+      from { transform: translateY(0) rotate(-5deg); }
+      to   { transform: translateY(-8px) rotate(5deg); }
+    }
+    .duck-title {
+      font-size: 1.55rem;
+      font-weight: 900;
+      color: #b03010;
+      margin-bottom: 14px;
+      letter-spacing: -0.02em;
+    }
+    .duck-story {
+      font-size: 1.02rem;
+      line-height: 1.75;
+      color: #1a3a5c;
+      text-align: left;
+      margin-bottom: 28px;
+    }
+    .duck-fight {
+      display: inline-block;
+      background: linear-gradient(135deg, #d94010, #ff6030);
+      color: white;
+      border: none;
+      border-radius: 999px;
+      padding: 16px 40px;
+      font-size: 1.05rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.18s ease, filter 0.18s ease;
+      letter-spacing: 0.03em;
+    }
+    .duck-fight:hover {
+      transform: translateY(-2px);
+      filter: brightness(1.1);
+    }
   </style>
   <script src="./water-overlay.js" defer></script>
 </head>
 <body>
+
+  <!-- ── Pop-up canard attaque (après les 3 énigmes) ── -->
+  <div id="duck-overlay" class="hidden">
+    <div class="duck-card">
+      <span class="duck-emoji">🦆</span>
+      <div class="duck-title">Le canard se réveille !</div>
+      <p class="duck-story">
+        Vous avez résolu les trois énigmes. Mais pendant que vous vous félicitiez, 
+        le petit canard en plastique qui flottait tranquillement sur l'eau qui montait 
+        a ouvert un œil… puis l'autre.<br><br>
+        Il n'est <strong>pas content</strong>. Très, très pas content.<br><br>
+        Il gonfle ses plumes, pousse un coin-coin rageur, et s'élance vers vous.<br>
+        <strong>Préparez-vous au combat !</strong>
+      </p>
+      <button class="duck-fight" id="duckFightBtn">⚔️ Affronter le canard</button>
+    </div>
+  </div>
+
+  <!-- ── Pop-up intro ── -->
+  <div id="intro-overlay">
+    <div class="intro-card">
+      <div class="intro-logo">Aqua<span>Go</span></div>
+      <div class="intro-divider"></div>
+      <p class="intro-story">
+        <strong>⚠ Alerte — Fuite critique détectée</strong><br><br>
+        “Hey… hey toi ! Oui toi là !”
+        <br>
+        “Si tu entends ma voix, c’est que t’es encore en vie… pour l’instant.”
+        <br>
+        “Le conduit… il a explosé.”
+        <br>
+        “Tout est inondé… et ça ne va pas s’arrêter.”
+        <br>
+        “Je suis le seul qui a réussi à s’échapper… enfin… à flotter.”
+        <br>
+        “Mais sans toi, je suis coincé ici.”
+        <br>
+        “Tu dois réparer le conduit.”
+        <br>
+        “Trouver les bons systèmes… résoudre les énigmes… et accéder à la salle de contrôle.”
+        <br>
+        “Fais vite… parce que l’eau continue de monter.”
+        <br>
+        “Chaque erreur… chaque seconde perdue… nous rapproche du pire.”
+        <br>
+        “Je compte sur toi.”
+        <br>
+        “Allez… ne me laisse pas finir en canard noyé…”
+      </p>
+      <button class="intro-start" id="introStartBtn">Commencer la partie</button>
+    </div>
+  </div>
+
   <div class="page">
     <div class="wave"></div>
     <div class="wave two"></div>
@@ -200,23 +395,104 @@
   </div>
 
   <script>
+    // ── Clés localStorage ──
+    const STORAGE_KEY      = 'aquago.water.startAt.v2';
+    const ENIGMES_DONE_KEY = 'aquago.enigmes.done'; // liste JSON des énigmes terminées ex: ["lock","tableau","sitePlomberie"]
+    const DUCK_DONE_KEY    = 'aquago.duck.shown';
+
+    // ── Intro pop-up ──
+    const introOverlay = document.getElementById('intro-overlay');
+    const introStartBtn = document.getElementById('introStartBtn');
+
+    if (localStorage.getItem(STORAGE_KEY)) {
+      introOverlay.classList.add('hidden');
+    }
+
+    introStartBtn.addEventListener('click', () => {
+      if (!localStorage.getItem(STORAGE_KEY)) {
+        localStorage.setItem(STORAGE_KEY, String(Date.now()));
+      }
+      introOverlay.classList.add('hidden');
+      checkDuckAttack();
+      searchInput.focus();
+    });
+
+    // ── Pop-up canard attaque ──
+    const duckOverlay  = document.getElementById('duck-overlay');
+    const duckFightBtn = document.getElementById('duckFightBtn');
+
+    function checkDuckAttack() {
+      if (localStorage.getItem(DUCK_DONE_KEY)) return;
+      if (!localStorage.getItem(STORAGE_KEY)) return; // partie pas encore commencée
+
+      let done = [];
+      try { done = JSON.parse(localStorage.getItem(ENIGMES_DONE_KEY) || '[]'); } catch(e) {}
+
+      const needed = ['lock', 'tableau', 'sitePlomberie'];
+      const allDone = needed.every(k => done.includes(k));
+
+      if (allDone) {
+        duckOverlay.classList.remove('hidden');
+      }
+    }
+
+    duckFightBtn.addEventListener('click', () => {
+      localStorage.setItem(DUCK_DONE_KEY, '1');
+      window.location.href = 'combat.html';
+    });
+
+    // Vérifier au chargement
+    checkDuckAttack();
+
+    // Vérifier aussi quand le navigateur restaure la page depuis le cache (bfcache)
+    window.addEventListener('pageshow', () => checkDuckAttack());
+
+    // ── Moteur de recherche / navigation ──
     const searchButton = document.getElementById('searchButton');
     const searchInput = document.getElementById('searchInput');
     const messageBox = document.getElementById('message');
+
+    // ~10 mots eau par page, cohérents avec le thème de chaque épreuve
     const routes = {
-      lock: 'lock.html',
-      cadenas: 'lock.html',
-      enigme: 'lock.html',
-      combat: 'combat.html',
-      arene: 'combat.html',
-      pokemon: 'combat.html'
+      // lock.html — énigme / cadenas
+      cadenas:   'lock.html',
+      serrure:   'lock.html',
+      enigme:    'lock.html',
+      code:      'lock.html',
+      clef:      'lock.html',
+      ombre:     'lock.html',
+      chiffre:   'lock.html',
+      secret:    'lock.html',
+      verrou:    'lock.html',
+      mystere:   'lock.html',
+
+      // sitePlomberie.html — site de plomberie
+      plomberie:   'sitePlomberie.html',
+      raccord:     'sitePlomberie.html',
+      joint:       'sitePlomberie.html',
+      robinet:     'sitePlomberie.html',
+      canalisation:'sitePlomberie.html',
+      reparation:  'sitePlomberie.html',
+      plombier:    'sitePlomberie.html',
+      vanne:       'sitePlomberie.html',
+      pression:    'sitePlomberie.html',
+      fuite:       'sitePlomberie.html',
+
+      // tableau.html — tableau périodique / siphon
+      tableau:     'tableau.html',
+      siphon:      'tableau.html',
+      elements:    'tableau.html',
+      chimie:      'tableau.html',
+      molecule:    'tableau.html',
+      symbole:     'tableau.html',
+      formule:     'tableau.html',
+      compose:     'tableau.html',
+      tuyau:       'tableau.html',
+      periodique:  'tableau.html',
     };
 
-    const normalizeQuery = value => value
-      .trim()
-      .toLowerCase()
-      .normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, '');
+    const normalizeQuery = v => v.trim().toLowerCase()
+      .normalize('NFD').replace(/[\u0300-\u036f]/g, '');
 
     function showMessage(html, isSuccess = false) {
       messageBox.innerHTML = html;
@@ -234,20 +510,23 @@
       const target = routes[query];
       if (target) {
         const pretty = query.replaceAll('<', '&lt;').replaceAll('>', '&gt;');
-        showMessage('<h2>Navigation</h2><p>Ouverture de la page : <strong>' + target + '</strong> (mot-clé : ' + pretty + ')</p>', true);
-        window.location.href = target;
+        showMessage(
+          '<h2>Accès trouvé</h2><p>Redirection vers <strong>' + target + '</strong>…</p>',
+          true
+        );
+        setTimeout(() => { window.location.href = target; }, 600);
         return;
       }
 
       const pretty = query.replaceAll('<', '&lt;').replaceAll('>', '&gt;');
-      showMessage('<h2>Aucun résultat</h2><p>Aucune page associée à <strong>' + pretty + '</strong>. Essaie : cadenas, lock, combat, arène, pokemon.</p>');
+      showMessage(
+        '<h2>Aucun résultat</h2><p><strong>' + pretty + '</strong> ne correspond à aucune piste connue. Cherche mieux…</p>'
+      );
     }
 
     searchButton.addEventListener('click', search);
-    searchInput.addEventListener('keydown', event => {
-      if (event.key === 'Enter') {
-        search();
-      }
+    searchInput.addEventListener('keydown', e => {
+      if (e.key === 'Enter') search();
     });
   </script>
 </body>
