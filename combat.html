@@ -23,74 +23,6 @@ body{
 }
 .hidden{display:none !important}
 
-/* Selection screen */
-.select-screen{
-  max-width:1100px;
-  margin:24px auto;
-  background:var(--paper);
-  border:1px solid #0002;
-  border-radius:24px;
-  box-shadow:0 16px 40px #0003;
-  overflow:hidden;
-}
-.select-head{
-  background:linear-gradient(120deg,#1d3046,#2f4f71);
-  color:#fff;
-  padding:16px 20px;
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  gap:10px;
-  flex-wrap:wrap;
-}
-.select-head h1{
-  font-family:Impact,Haettenschweiler,"Arial Black",sans-serif;
-  font-size:clamp(1.2rem,3vw,1.8rem);
-  letter-spacing:.03em;
-  text-transform:uppercase;
-}
-.select-note{
-  padding:12px 20px;
-  background:#fff8e8;
-  border-bottom:1px solid #0002;
-  font-size:.95rem;
-}
-.team-grid{
-  padding:20px;
-  display:grid;
-  grid-template-columns:repeat(3,minmax(0,1fr));
-  gap:14px;
-}
-.poke-card{
-  background:#fff;
-  border:1px solid #0002;
-  border-radius:16px;
-  padding:14px;
-  display:grid;
-  gap:10px;
-  justify-items:center;
-  text-align:center;
-}
-.poke-card img{
-  width:144px;
-  height:144px;
-  image-rendering:pixelated;
-  filter:drop-shadow(0 8px 8px #0004);
-}
-.poke-card h2{font-size:1.1rem}
-.poke-card p{font-size:.9rem;color:#4a6178}
-.pick-btn{
-  border:0;
-  border-radius:12px;
-  background:var(--accent);
-  color:#fff;
-  font-weight:800;
-  padding:10px 14px;
-  width:100%;
-  cursor:pointer;
-}
-.pick-btn:hover{background:var(--accent-dark)}
-
 /* Battle full screen */
 .battle-screen{
   position:fixed;
@@ -163,6 +95,7 @@ body{
   top:50%;
   --sprite-scale:1;
   transform:translate(-50%,-50%) scale(var(--sprite-scale));
+  object-fit:contain;
   image-rendering:pixelated;
   filter:drop-shadow(0 10px 8px #0007);
   opacity:1;
@@ -171,6 +104,42 @@ body{
 .enemy-sprite{width:285px;height:285px}
 .player-sprite{width:330px;height:330px}
 .battle-sprite.hit-comic{animation:comicHit .34s ease}
+
+.player-dialog{
+  position:absolute;
+  min-width:180px;
+  max-width:min(320px,56vw);
+  padding:10px 12px;
+  border-radius:14px;
+  background:#ffffffef;
+  border:2px solid #1f2f44;
+  color:#1c2b3d;
+  font-weight:800;
+  font-size:.92rem;
+  line-height:1.25;
+  box-shadow:0 8px 18px #0000004d;
+  z-index:19;
+  pointer-events:none;
+  opacity:0;
+  transform:translate(-50%,-50%) scale(.95);
+  transition:opacity .2s ease,transform .2s ease;
+}
+.player-dialog::after{
+  content:"";
+  position:absolute;
+  left:20px;
+  bottom:-10px;
+  width:16px;
+  height:16px;
+  background:#ffffffef;
+  border-right:2px solid #1f2f44;
+  border-bottom:2px solid #1f2f44;
+  transform:rotate(45deg);
+}
+.player-dialog.show{
+  opacity:1;
+  transform:translate(-50%,-50%) scale(1);
+}
 
 .impact-burst{
   position:absolute;
@@ -361,6 +330,28 @@ body{
   pointer-events:none;
 }
 .win-banner.show{animation:winPop 1s ease forwards}
+.win-banner.lose{
+  color:#ffd1d1;
+  text-shadow:0 4px 0 #6e1f1f,0 10px 26px #000d,0 0 42px #ff3a3a;
+}
+
+.outcome-restart-btn{
+  position:absolute;
+  left:50%;
+  top:69%;
+  transform:translateX(-50%);
+  z-index:21;
+  min-width:220px;
+  min-height:52px;
+  border:1px solid #ffffff45;
+  border-radius:12px;
+  background:#163459;
+  color:#fff;
+  font-weight:800;
+  cursor:pointer;
+  box-shadow:0 8px 20px #0000006b;
+}
+.outcome-restart-btn:hover{background:#1f4a7f}
 
 .hidden-media{
   position:absolute;
@@ -532,7 +523,6 @@ body{
 }
 
 @media(max-width:960px){
-  .team-grid{grid-template-columns:1fr}
   .enemy-zone{right:4%;top:28%}
   .player-zone{left:2%;bottom:16%}
   .hp-card{width:min(280px,46vw)}
@@ -540,63 +530,31 @@ body{
 @media(max-width:760px){
   .command-bar{grid-template-columns:1fr;}
   .result-text{top:12%;font-size:.95rem}
+  .player-dialog{
+    max-width:72vw;
+    font-size:.86rem;
+    padding:8px 10px;
+  }
+  .outcome-restart-btn{
+    top:72%;
+    min-width:200px;
+  }
   .enemy-zone{width:260px;height:220px;right:0;top:30%}
   .player-zone{width:260px;height:220px;left:0;bottom:18%}
   .enemy-sprite{width:225px;height:225px}
   .player-sprite{width:255px;height:255px}
 }
 </style>
-<script src="game-state.js"></script>
-<script>
-(() => {
-  const game = window.GameState;
-  if (!game) return;
-  game.requireStartedOrRedirect();
-  if (game.redirectIfGameOver()) return;
-  game.requireCombatOrRedirect();
-})();
-</script>
-<script src="water-overlay.js"></script>
 </head>
 <body>
 
-<main id="selectScreen" class="select-screen">
-  <header class="select-head">
-    <h1>Selection de Pokemon</h1>
-    <div>Etape 1: visualise ton equipe</div>
-  </header>
-  <div class="select-note">Choisis un Pokemon. Ensuite l'arene passe en grand ecran, Pokeball lancee avec le texte "Je te choisi".</div>
-  <section class="team-grid">
-    <article class="poke-card">
-      <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/25.png" alt="Pikachu">
-      <h2>Pikachu</h2>
-      <p>Type Electrik | HP 150</p>
-      <button class="pick-btn" data-pick="pikachu">Je prends Pikachu</button>
-    </article>
-    <article class="poke-card">
-      <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/4.png" alt="Salameche">
-      <h2>Salameche</h2>
-      <p>Type Feu | HP 160</p>
-      <button class="pick-btn" data-pick="charmander">Je prends Salameche</button>
-    </article>
-    <article class="poke-card">
-      <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/7.png" alt="Carapuce">
-      <h2>Carapuce</h2>
-      <p>Type Eau | HP 172</p>
-      <button class="pick-btn" data-pick="squirtle">Je prends Carapuce</button>
-    </article>
-  </section>
-</main>
-
-<section id="battleScreen" class="battle-screen hidden" aria-label="Arena combat">
+<section id="battleScreen" class="battle-screen" aria-label="Arena combat">
   <div id="arenaWrap" class="arena-wrap">
-    <button id="backBtn" class="back-btn" type="button">Retour selection</button>
-
     <div class="top-hud">
       <div class="hp-card">
         <div class="hp-row"><span id="playerName">-</span><span id="playerHpText">HP 0/0</span></div>
         <div class="hp-track"><div id="playerHpFill" class="hp-fill"></div></div>
-        <div id="playerStatus" class="status">Selection en attente.</div>
+        <div id="playerStatus" class="status">En attente du lancement.</div>
       </div>
       <div class="hp-card">
         <div class="hp-row"><span id="enemyName">Psykokwak</span><span id="enemyHpText">HP 0/0</span></div>
@@ -605,8 +563,9 @@ body{
       </div>
     </div>
 
-    <div id="resultText" class="result-text">Selectionne ton Pokemon pour demarrer.</div>
+    <div id="resultText" class="result-text">Lancement du combat...</div>
     <div id="winBanner" class="win-banner hidden">YOU WIN</div>
+    <button id="loseRestartBtn" class="outcome-restart-btn hidden" type="button">Recommencer</button>
     <audio id="battleBgm" class="hidden-media" preload="auto" loop></audio>
     <audio id="legendarySfx" class="hidden-media" preload="auto"></audio>
     <audio id="winAudio" class="hidden-media" preload="none"></audio>
@@ -617,8 +576,9 @@ body{
     </div>
 
     <div id="playerZone" class="player-zone">
-      <img id="playerSprite" class="battle-sprite player-sprite" src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/back/25.png" alt="Pokemon joueur">
+      <img id="playerSprite" class="battle-sprite player-sprite" src="image/combat/joueurclef.png" alt="Joueur clef">
     </div>
+    <div id="playerDialog" class="player-dialog" aria-live="polite"></div>
 
     <div id="attackFxLayer" class="attack-fx-layer"></div>
     <div id="bulletLayer" class="bullet-layer"></div>
@@ -643,25 +603,28 @@ body{
       <div id="turnInfo">Tour: -</div>
       <div id="potionInfo">Potions: 2</div>
       <div id="specialInfo">Special: -</div>
-      <div id="legendaryInfo">Legendaire: verrouille</div>
-      <div id="hintInfo">Action: Attaque / Special / Objet (+Legendaire < 30% PV, KO 1 coup)</div>
+      <div id="hintInfo">Action: Attaque / Special (dispo apres 3 attaques) / Objet</div>
     </div>
   </div>
 </section>
 
 <script>
-const roster={
-  pikachu:{name:"Pikachu",type:"Electrik",maxHp:150,minAtk:8,maxAtk:15,back:"https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/back/25.png",moves:["Eclair","Vive-Attaque"],special:{name:"Fatal-Foudre",minAtk:16,maxAtk:24}},
-  charmander:{name:"Salameche",type:"Feu",maxHp:160,minAtk:9,maxAtk:16,back:"https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/back/4.png",moves:["Flammeche","Griffe"],special:{name:"Lance-Flammes X",minAtk:17,maxAtk:25}},
-  squirtle:{name:"Carapuce",type:"Eau",maxHp:172,minAtk:7,maxAtk:14,back:"https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/back/7.png",moves:["Pistolet a O","Charge"],special:{name:"Hydrocanon",minAtk:15,maxAtk:22}}
+const playerTemplate={
+  name:"Joueur Clef",
+  type:"Feu",
+  maxHp:172,
+  minAtk:8,
+  maxAtk:15,
+  back:"image/combat/joueurclef.png",
+  moves:["Rafale","Visee rapide"],
+  special:{name:"Tir perce-armure",minAtk:16,maxAtk:24}
 };
 const enemyTemplate={name:"Psykokwak",type:"Psy",minAtk:8,maxAtk:14,sprite:"https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/54.png",moves:["Confusion","Choc Mental"]};
 
-const selectScreen=document.getElementById("selectScreen");
 const battleScreen=document.getElementById("battleScreen");
-const backBtn=document.getElementById("backBtn");
 const resultText=document.getElementById("resultText");
 const winBanner=document.getElementById("winBanner");
+const loseRestartBtn=document.getElementById("loseRestartBtn");
 const battleBgm=document.getElementById("battleBgm");
 const legendarySfx=document.getElementById("legendarySfx");
 const winAudio=document.getElementById("winAudio");
@@ -670,6 +633,7 @@ const enemySprite=document.getElementById("enemySprite");
 const playerSprite=document.getElementById("playerSprite");
 const enemyZone=document.getElementById("enemyZone");
 const playerZone=document.getElementById("playerZone");
+const playerDialog=document.getElementById("playerDialog");
 const attackFxLayer=document.getElementById("attackFxLayer");
 const bulletLayer=document.getElementById("bulletLayer");
 const shooter=document.getElementById("shooter");
@@ -697,20 +661,19 @@ const itemLegendaryBtn=document.getElementById("itemLegendaryBtn");
 const turnInfo=document.getElementById("turnInfo");
 const potionInfo=document.getElementById("potionInfo");
 const specialInfo=document.getElementById("specialInfo");
-const legendaryInfo=document.getElementById("legendaryInfo");
 const hintInfo=document.getElementById("hintInfo");
 
 const arenaWrap=document.getElementById("arenaWrap");
 
 const state={
   player:null,
-  selectedKey:"",
   enemy:null,
   playerHp:0,
   enemyHp:0,
   potions:2,
-  specialCharges:2,
+  normalAttacksForSpecial:0,
   legendaryUsed:false,
+  legendaryAnnounced:false,
   itemMenuOpen:false,
   turn:0,
   busy:false,
@@ -730,8 +693,18 @@ let audioCtx=null;
 let pendingWinMediaRetry=false;
 let pendingBattleMusicRetry=false;
 let pendingLegendarySfxRetry=false;
-let redirectOnFinishScheduled=false;
 const activeImpactHoles=[];
+const PLAYER_DIALOG_LINES=[
+  "Je me noye !",
+  "Depeche-toi de mourrir canard !",
+  "Il est increvable !!!!",
+  "Quelle resistance."
+];
+const PLAYER_DIALOG_INTERVAL_MS=10000;
+const PLAYER_DIALOG_VISIBLE_MS=4300;
+let playerDialogIntervalId=null;
+let playerDialogHideTimeoutId=null;
+const SPECIAL_UNLOCK_NORMAL_ATTACKS=3;
 
 function preloadAsset(src){
   return new Promise((resolve)=>{
@@ -757,21 +730,66 @@ const battleAssetsReady=Promise.all([
   preloadAsset("image/combat/battle_duck.jpg"),
   preloadAsset("image/combat/impact3.png"),
   preloadAsset(enemyTemplate.sprite),
-  ...Object.values(roster).map((pokemon)=>preloadAsset(pokemon.back)),
+  preloadAsset(playerTemplate.back),
   shooterAssetReady,
   legendaryShooterAssetReady
 ]);
 
 function setBattleVisibility(show){
   if(show){
-    selectScreen.classList.add("hidden");
     battleScreen.classList.remove("hidden");
     document.body.style.overflow="hidden";
   }else{
     battleScreen.classList.add("hidden");
-    selectScreen.classList.remove("hidden");
     document.body.style.overflow="auto";
   }
+}
+
+function positionPlayerDialog(){
+  const zoneRect=playerZone.getBoundingClientRect();
+  const arenaRect=arenaWrap.getBoundingClientRect();
+  const x=zoneRect.left-arenaRect.left + zoneRect.width*0.5 + Math.max(52,zoneRect.width*0.28);
+  const y=zoneRect.top-arenaRect.top - Math.max(16,zoneRect.height*0.12);
+  playerDialog.style.left=`${x}px`;
+  playerDialog.style.top=`${y}px`;
+}
+
+function hidePlayerDialog(){
+  playerDialog.classList.remove("show");
+}
+
+function clearPlayerDialogLoop(){
+  if(playerDialogIntervalId){
+    clearInterval(playerDialogIntervalId);
+    playerDialogIntervalId=null;
+  }
+  if(playerDialogHideTimeoutId){
+    clearTimeout(playerDialogHideTimeoutId);
+    playerDialogHideTimeoutId=null;
+  }
+  hidePlayerDialog();
+}
+
+function showPlayerDialog(text){
+  if(state.over || !state.player) return;
+  const line=text || PLAYER_DIALOG_LINES[rand(0,PLAYER_DIALOG_LINES.length-1)];
+  playerDialog.textContent=line;
+  playerDialog.classList.remove("show");
+  positionPlayerDialog();
+  void playerDialog.offsetWidth;
+  playerDialog.classList.add("show");
+  if(playerDialogHideTimeoutId) clearTimeout(playerDialogHideTimeoutId);
+  playerDialogHideTimeoutId=setTimeout(()=>{
+    hidePlayerDialog();
+    playerDialogHideTimeoutId=null;
+  },PLAYER_DIALOG_VISIBLE_MS);
+}
+
+function startPlayerDialogLoop(){
+  clearPlayerDialogLoop();
+  playerDialogIntervalId=setInterval(()=>{
+    showPlayerDialog();
+  },PLAYER_DIALOG_INTERVAL_MS);
 }
 
 function extractYouTubeId(url){
@@ -890,7 +908,7 @@ function playWinMedia(){
 function setControls(enabled){
   const canAct=enabled && !state.busy && !state.over && state.phase==="player";
   attackBtn.disabled=!canAct;
-  specialBtn.disabled=(!canAct) || state.specialCharges<=0;
+  specialBtn.disabled=(!canAct) || state.normalAttacksForSpecial<SPECIAL_UNLOCK_NORMAL_ATTACKS;
   itemBtn.disabled=!canAct;
   itemPotionBtn.disabled=!canAct || state.potions<=0;
   updateLegendaryVisibility(canAct);
@@ -902,14 +920,17 @@ function setControls(enabled){
 
 function isLegendaryUnlocked(){
   if(!state.player || state.player.maxHp<=0) return false;
-  return (state.playerHp/state.player.maxHp)<0.3 && !state.legendaryUsed;
+  return (state.playerHp/state.player.maxHp)<0.15 && !state.legendaryUsed;
 }
 
 function updateLegendaryVisibility(canAct){
   const show=isLegendaryUnlocked();
+  if(show && !state.legendaryAnnounced){
+    showPlayerDialog("c'est quoi cette objet !");
+    state.legendaryAnnounced=true;
+  }
   itemLegendaryBtn.classList.toggle("hidden",!show);
   itemLegendaryBtn.disabled=!(show && canAct);
-  legendaryInfo.textContent=show?"Legendaire: disponible (KO instantane)":"Legendaire: verrouille";
 }
 
 function setPhase(phase){
@@ -917,7 +938,7 @@ function setPhase(phase){
   if(state.over){
     hintInfo.textContent="Combat termine.";
   }else if(phase==="player"){
-    hintInfo.textContent="Ton tour: Attaque, Special, Objet ou Legendaire si debloque.";
+    hintInfo.textContent="Ton tour: Attaque, Special ou Objet.";
   }else if(phase==="enemy"){
     hintInfo.textContent="Tour ennemi en cours...";
   }else{
@@ -941,7 +962,7 @@ function refreshHud(){
   const phaseLabel=state.phase==="enemy"?"Ennemi":(state.phase==="player"?"Joueur":"Intro");
   turnInfo.textContent=`Tour: ${state.turn} (${phaseLabel})`;
   potionInfo.textContent=`Potions: ${state.potions}`;
-  specialInfo.textContent=`Special: ${state.player.special.name} (${state.specialCharges})`;
+  specialInfo.textContent=`Special: ${state.player.special.name} (${state.normalAttacksForSpecial}/${SPECIAL_UNLOCK_NORMAL_ATTACKS})`;
   updateLegendaryVisibility(state.phase==="player" && !state.busy && !state.over);
 }
 
@@ -1038,24 +1059,34 @@ function clearBulletHoles(){
   activeImpactHoles.length=0;
   winBanner.classList.add("hidden");
   winBanner.classList.remove("show");
+  winBanner.classList.remove("lose");
+  winBanner.textContent="YOU WIN";
+  loseRestartBtn.classList.add("hidden");
 }
 
 async function playWinFinale(){
   playWinMedia();
   await wait(180);
+  loseRestartBtn.classList.add("hidden");
+  winBanner.textContent="YOU WIN";
+  winBanner.classList.remove("lose");
   winBanner.classList.remove("hidden");
   winBanner.classList.remove("show");
   void winBanner.offsetWidth;
   winBanner.classList.add("show");
 }
 
-function scheduleReturnToSearch(){
-  if(redirectOnFinishScheduled) return;
-  redirectOnFinishScheduled=true;
-  setTimeout(()=>{
-    stopWinMedia();
-    window.location.href="index.html?combat_done=1";
-  },3200);
+async function playLoseFinale(){
+  await wait(180);
+  loseRestartBtn.classList.add("hidden");
+  winBanner.textContent="YOU LOSE";
+  winBanner.classList.add("lose");
+  winBanner.classList.remove("hidden");
+  winBanner.classList.remove("show");
+  void winBanner.offsetWidth;
+  winBanner.classList.add("show");
+  await wait(1000);
+  loseRestartBtn.classList.remove("hidden");
 }
 
 function createBulletHoleAroundEnemy(){
@@ -1094,6 +1125,7 @@ function setShooterVisible(show){
 }
 
 async function playLegendaryCinematic(){
+  playerSprite.style.opacity="0";
   setShooterVisible(true);
   setResult("Objet legendaire active: mode sulfateuse.");
   startLegendarySfx();
@@ -1109,15 +1141,19 @@ async function playLegendaryCinematic(){
   await wait(180);
   stopLegendarySfx();
   setShooterVisible(false);
+  playerSprite.src="image/combat/joueurArmee.png";
+  playerSprite.alt="Joueur arme";
+  playerSprite.style.opacity="1";
 }
 
 function endBattle(playerWon){
   state.over=true;
+  clearPlayerDialogLoop();
   state.itemMenuOpen=false;
   itemPanel.classList.add("hidden");
   setPhase("over");
   setControls(false);
-  restartBtn.classList.toggle("hidden",playerWon);
+  restartBtn.classList.add("hidden");
   stopBattleMusic();
   stopLegendarySfx();
   if(playerWon){
@@ -1125,11 +1161,11 @@ function endBattle(playerWon){
     enemyStatus.textContent="KO";
     playerStatus.textContent="Tu gagnes le combat.";
     void playWinFinale();
-    scheduleReturnToSearch();
   }else{
     setResult(`${state.player.name} est KO... Defaite. Clique sur "Recommencer combat" pour retenter.`);
     playerStatus.textContent="KO";
     enemyStatus.textContent="Psykokwak triomphe.";
+    void playLoseFinale();
   }
 }
 
@@ -1179,10 +1215,13 @@ async function onAttack(){
   animateImpact(enemySprite,enemyZone,"POW!");
   spawnDelta(enemyZone,dmg,false);
   setResult(`${state.player.name} utilise ${move} !`);
+  state.normalAttacksForSpecial=Math.min(SPECIAL_UNLOCK_NORMAL_ATTACKS,state.normalAttacksForSpecial+1);
   enemyStatus.textContent=nextEnemyHp<=0
     ? `${state.enemy.name} tient encore debout. Seul l'objet legendaire peut finir le combat.`
     : `${state.enemy.name} perd ${dmg} PV.`;
-  playerStatus.textContent="Belle attaque.";
+  playerStatus.textContent=state.normalAttacksForSpecial>=SPECIAL_UNLOCK_NORMAL_ATTACKS
+    ? "Attaque speciale prete !"
+    : `Charge speciale: ${state.normalAttacksForSpecial}/${SPECIAL_UNLOCK_NORMAL_ATTACKS}`;
   refreshHud();
 
   setPhase("enemy");
@@ -1193,16 +1232,17 @@ async function onAttack(){
 
 async function onSpecial(){
   if(state.busy||state.over||state.phase!=="player") return;
-  if(state.specialCharges<=0){
-    setResult("Plus de charge speciale disponible.");
-    playerStatus.textContent="Special indisponible.";
+  if(state.normalAttacksForSpecial<SPECIAL_UNLOCK_NORMAL_ATTACKS){
+    const remaining=SPECIAL_UNLOCK_NORMAL_ATTACKS-state.normalAttacksForSpecial;
+    setResult("Attaque speciale indisponible.");
+    playerStatus.textContent=`Fais encore ${remaining} attaque(s) normale(s).`;
     return;
   }
 
   state.busy=true;
   setControls(false);
   state.turn+=1;
-  state.specialCharges-=1;
+  state.normalAttacksForSpecial=0;
   refreshHud();
 
   const dmg=rand(state.player.special.minAtk,state.player.special.maxAtk);
@@ -1228,7 +1268,7 @@ async function onLegendary(){
   if(state.busy||state.over||state.phase!=="player") return;
   if(!isLegendaryUnlocked()){
     setResult("Objet legendaire indisponible.");
-    playerStatus.textContent="Condition: passer sous 30% PV.";
+    playerStatus.textContent="Condition: passer sous 15% PV.";
     return;
   }
 
@@ -1292,11 +1332,11 @@ async function onUsePotion(){
   await enemyTurn();
 }
 
-async function startBattle(key){
-  redirectOnFinishScheduled=false;
+async function startBattle(){
   const shooterSrc=await shooterAssetReady;
   shooterImg.src=shooterSrc;
   await battleAssetsReady;
+  clearPlayerDialogLoop();
   stopWinMedia();
   stopBattleMusic();
   stopLegendarySfx();
@@ -1305,15 +1345,15 @@ async function startBattle(key){
   restartBtn.classList.add("hidden");
   itemPanel.classList.add("hidden");
   state.itemMenuOpen=false;
-  state.selectedKey=key;
-  state.player=JSON.parse(JSON.stringify(roster[key]));
+  state.player=JSON.parse(JSON.stringify(playerTemplate));
   state.enemy=JSON.parse(JSON.stringify(enemyTemplate));
   state.enemy.maxHp=state.player.maxHp*2;
   state.playerHp=state.player.maxHp;
   state.enemyHp=state.enemy.maxHp;
   state.potions=2;
-  state.specialCharges=2;
+  state.normalAttacksForSpecial=0;
   state.legendaryUsed=false;
+  state.legendaryAnnounced=false;
   state.turn=1;
   state.busy=true;
   state.over=false;
@@ -1369,30 +1409,18 @@ async function startBattle(key){
   state.busy=false;
   setPhase("player");
   refreshHud();
-}
-
-function backToSelection(){
-  redirectOnFinishScheduled=false;
-  state.busy=false;
-  state.over=false;
-  state.phase="intro";
-  state.legendaryUsed=false;
-  state.itemMenuOpen=false;
-  itemPanel.classList.add("hidden");
-  restartBtn.classList.add("hidden");
-  clearBulletHoles();
-  setShooterVisible(false);
-  stopWinMedia();
-  stopBattleMusic();
-  stopLegendarySfx();
-  setBattleVisibility(false);
-  setResult("Selectionne ton Pokemon pour demarrer.");
+  startPlayerDialogLoop();
 }
 
 function restartBattle(){
-  if(!state.selectedKey) return;
-  void startBattle(state.selectedKey);
+  void startBattle();
 }
+
+window.addEventListener("resize",()=>{
+  if(playerDialog.classList.contains("show")){
+    positionPlayerDialog();
+  }
+});
 
 document.addEventListener("pointerdown",()=>{
   unlockAudioContext();
@@ -1410,16 +1438,14 @@ document.addEventListener("pointerdown",()=>{
   }
 },{passive:true});
 
-document.querySelectorAll("[data-pick]").forEach((btn)=>{
-  btn.addEventListener("click",()=>startBattle(btn.dataset.pick));
-});
 attackBtn.addEventListener("click",onAttack);
 specialBtn.addEventListener("click",onSpecial);
 itemBtn.addEventListener("click",onItem);
 itemPotionBtn.addEventListener("click",onUsePotion);
 itemLegendaryBtn.addEventListener("click",onLegendary);
 restartBtn.addEventListener("click",restartBattle);
-backBtn.addEventListener("click",backToSelection);
+loseRestartBtn.addEventListener("click",restartBattle);
+void startBattle();
 </script>
 </body>
 </html>
