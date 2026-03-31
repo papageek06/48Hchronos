@@ -43,3 +43,20 @@ TODO / Suggestions:
 - Boosted moon-blade projectile visibility: size increased to 72px and stronger glow/contrast. Intensified attack colors (electrik yellow, water blue, grass green, psy white).
 - Added battle intro BGM autoplay from image/combat/stereo_color-battle-drum-493709.mp3, with autoplay retry on next user interaction and proper stop on battle end/return.
 - Added dedicated legendary SFX hook: plays image/combat/SFB-ak47_3.mp3 when legendary animation starts and force-stops at animation end (also reset on battle end/restart/return).
+- Removed Pokemon selection flow in combat.html: battle now starts directly on page load with a fixed player template (Joueur Armee) and no data-pick UI.
+- Intro summon kept: Pokeball drop + flash now reveals image/combat/joueurArmee.png directly in player zone.
+- Cleaned selection references (HTML/CSS/JS): removed select screen markup, roster pick handlers, selectedKey state, and back-to-selection behavior.
+- Verification: attempted develop-web-game Playwright client run, but execution is still blocked by missing npm package 'playwright' in this environment.
+- Updated combat player visuals per request: default battler is now image/combat/joueurclef.png (Joueur Clef), and on legendary item use the player sprite is replaced by image/combat/joueurArmee.png.
+- Added timed player dialogue bubble in combat.html: positioned above the player with right offset, random taunt text every 60s during active battle, auto-hide after ~4.3s, and responsive reposition on window resize.
+- Dialogue pool now includes: "Je me noye !", "Depeche-toi de mourrir canard !", "Il est increvable !!!!", "Quelle resistance.".
+- Added defeat finale UI in combat.html: when player loses, center banner now reuses win animation as "YOU LOSE" with red styling.
+- Added dedicated overlay restart button under the lose banner (`Recommencer`) that appears after the lose animation completes and triggers restartBattle.
+- Reset logic now hides lose overlay button and restores banner state on new battle/restart.
+- Fixed legendary double-player visual: player sprite is now hidden during legendary cinematic, then switched to image/combat/joueurArmee.png only after cinematic ends (single armed character visible at any time).
+- Updated special-attack unlock logic: special is now available only after 3 normal attacks (progress tracked with normalAttacksForSpecial).
+- Replaced old special charges system in combat.html; special button state and HUD now reflect progress as X/3, reset to 0 after special use.
+- Added user feedback messages: "Attaque speciale prete !" when charged, and remaining normal attacks needed when trying too early.
+- Added one-time legendary appearance callout: when legendary item becomes available, result text now shows "c'est quoi cette objet !" (reset each new battle).
+- Removed legendary mention from bottom-right meta panel (deleted dedicated legendary line and updated hint text).
+- Legendary unlock callout now appears in player speech bubble (`showPlayerDialog("c'est quoi cette objet !")`) instead of result bar.
