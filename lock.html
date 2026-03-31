@@ -7,15 +7,15 @@
   <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700&family=Crimson+Pro:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
   <style>
     :root {
-      --ink: #1a1008;
-      --parch: #f5ead0;
-      --parch2: #ede0bc;
-      --gold: #c8963e;
-      --gold2: #a0721e;
+      --ink: #034e7b;
+      --parch: #fdfcf9;
+      --parch2: #f7f0dc;
+      --gold: #0b78d1;
+      --gold2: #0b78d1;
       --shadow: rgba(26,16,8,0.18);
       --red: #b03030;
       --green: #2d7a4a;
-    }
+    }q
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -114,11 +114,11 @@
     .lock-svg {
       width: 100px;
       height: 116px;
-      filter: drop-shadow(0 4px 12px rgba(0,0,0,0.25));
+      /* filter: drop-shadow(0 4px 12px rgba(0,0,0,0.25)); */
       transition: filter 0.4s, transform 0.5s;
     }
     .lock-svg.open {
-      filter: drop-shadow(0 0 20px rgba(45,122,74,0.9));
+      /* filter: drop-shadow(0 0 20px rgba(45,122,74,0.9)); */
       transform: rotate(-6deg) scale(1.1);
     }
     .lock-svg.shake { animation: shk 0.35s ease; }
@@ -373,7 +373,7 @@
 
 <div class="scroll">
   <div class="title-wrap">
-    <h1>🔐 L'Énigme des Ombres</h1>
+    <h1>L'Énigme</h1>
     <div class="title-divider"></div>
   </div>
 
@@ -382,14 +382,14 @@
     <svg id="lockSvg" class="lock-svg" viewBox="0 0 100 116" fill="none" xmlns="http://www.w3.org/2000/svg">
       <g id="shackle">
         <path d="M28 55 L28 32 Q28 8 50 8 Q72 8 72 32 L72 55"
-              stroke="#c8963e" stroke-width="9" stroke-linecap="round" fill="none"/>
+              stroke="#0b78d1" stroke-width="9" stroke-linecap="round" fill="none"/>
       </g>
-      <rect x="10" y="50" width="80" height="60" rx="12" fill="#2a1f0a" stroke="#c8963e" stroke-width="2.5"/>
+      <rect x="10" y="50" width="80" height="60" rx="12" fill="#2a1f0a" stroke="#0b78d1" stroke-width="2.5"/>
       <rect x="16" y="56" width="68" height="48" rx="8" fill="url(#lg)"/>
-      <circle cx="50" cy="76" r="10" fill="#1a1008" stroke="#c8963e" stroke-width="1.5"/>
+      <circle cx="50" cy="76" r="10" fill="#0b78d1" stroke="#0b78d1" stroke-width="1.5"/>
       <rect x="46" y="76" width="8" height="13" rx="2.5" fill="#1a1008"/>
-      <circle cx="22" cy="63" r="3.5" fill="#362a14" stroke="#c8963e" stroke-width="1"/>
-      <circle cx="78" cy="63" r="3.5" fill="#362a14" stroke="#c8963e" stroke-width="1"/>
+      <circle cx="22" cy="63" r="3.5" fill="#362a14" stroke="#0b78d1" stroke-width="1"/>
+      <circle cx="78" cy="63" r="3.5" fill="#362a14" stroke="#0b78d1" stroke-width="1"/>
       <rect x="18" y="58" width="24" height="5" rx="2.5" fill="rgba(255,255,255,0.05)"/>
       <defs>
         <linearGradient id="lg" x1="16" y1="56" x2="84" y2="104" gradientUnits="userSpaceOnUse">
@@ -432,26 +432,26 @@
     <button class="key del" onclick="press('del')">⌫</button>
     <button class="key" onclick="press('0')">0</button>
     <button class="key" onclick="press('next')">→</button>
-    <button class="key ok" onclick="validate()">✦ Ouvrir le cadenas ✦</button>
+    <button class="key ok" onclick="validate()">Ouvrir le cadenas</button>
   </div>
 
   <div class="feedback" id="feedback"></div>
 
-  <!-- Save section (shown after success) -->
+  <!-- Save section (shown after success)
   <div class="save-section" id="saveSection">
-    <div class="save-label">📜 Enregistre ta réussite</div>
+    <div class="save-label">Enregistre ta réussite</div>
     <div class="save-row">
       <input class="save-input" id="nameInput" type="text" placeholder="Ton prénom ou surnom…" maxlength="30"/>
-      <button class="save-btn" onclick="saveResult()">💾 Sauvegarder</button>
+      <button class="save-btn" onclick="saveResult()">Sauvegarder</button>
     </div>
     <div class="save-confirm" id="saveConfirm"></div>
-  </div>
+  </div> -->
 
   <!-- Saved list -->
-  <div class="saved-wrap" id="savedWrap">
-    <div class="saved-title">📖 Tableau des Érudits</div>
+  <!-- <div class="saved-wrap" id="savedWrap">
+    <div class="saved-title">Tableau des Érudits</div>
     <div class="saved-list" id="savedList"></div>
-  </div>
+  </div> -->
 </div>
 
 <script>
@@ -537,7 +537,7 @@ function validate() {
     solved = true;
     openLock();
     markSlots('correct');
-    showFeedback('✨ Admirable ! Le cadenas s\'ouvre…', 'ok');
+    showFeedback('Admirable ! Le cadenas s\'ouvre…', 'ok');
     document.getElementById('keypad').style.display = 'none';
     document.getElementById('saveSection').style.display = 'flex';
     launchConfetti(80);
